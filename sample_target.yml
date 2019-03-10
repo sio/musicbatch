@@ -1,0 +1,16 @@
+name: Sansa Clip Zip
+
+input:
+  - /home/user/music
+  - /media/torrents/music
+
+output:
+  directory: /media/user/SANSA_SD
+  pattern: '{artist}/{year} - {album}/{number} - {title}'
+  format: vorbis  # or mp3, opus, aotuv
+  quality: q5
+  lossy_source: copy  # or allow_bad_transcodes for lossy-to-lossy
+
+extras:
+  lyrics: yes
+  cover: 96  # pixels
