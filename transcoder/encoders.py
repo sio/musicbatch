@@ -18,6 +18,7 @@ class Transcoder:
     def __init__(self, quality=None, copy_tags=False, *a, **ka):
         self.export_params = self.configure(quality, *a, **ka)
         self.copy_tags = copy_tags
+        self.quality = quality
 
 
     def configure(self, quality, *a, **ka):
@@ -45,6 +46,13 @@ class Transcoder:
             exported.tags.update(tags)
             exported.save()
 
+
+    def __repr__(self):
+        return '<{cls}(quality={quality!r}, copy_tags={copy_tags})>'.format(
+            cls = self.__class__.__name__,
+            quality = self.quality,
+            copy_tags = self.copy_tags,
+        )
 
     @staticmethod
     def make_target_directory(output_filename):
