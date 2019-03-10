@@ -15,8 +15,9 @@ class Transcoder:
     '''Generic base class for transcoders'''
 
 
-    def __init__(self, quality=None, *a, **ka):
+    def __init__(self, quality=None, copy_tags=False, *a, **ka):
         self.export_params = self.configure(quality, *a, **ka)
+        self.copy_tags = copy_tags
 
 
     def configure(self, quality, *a, **ka):
@@ -33,14 +34,16 @@ class Transcoder:
         '''Transcode file from one format to another'''
         input_format = input_filename.rsplit('.')[1].lower()  # ffmpeg format names usually match extension
         audio = AudioSegment.from_file(input_filename, input_format)
-        tags = mutagen.File(input_filename, easy=True).tags
 
         self.make_target_directory(output_filename)
         audio.export(output_filename, **self.export_params)
 
-        exported = mutagen.File(output_filename, easy=True)
-        exported.tags.update(tags)
-        exported.save()
+        if self.copy_tags:
+            # Do not copy tags unless explicitly asked to
+            tags = mutagen.File(input_filename, easy=True).tags
+            exported = mutagen.File(output_filename, easy=True)
+            exported.tags.update(tags)
+            exported.save()
 
 
     @staticmethod
