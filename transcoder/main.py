@@ -70,13 +70,13 @@ class TranscodingTask:
 
         elements = {}
         for field in allowed_fields:
-            meta_value = self.metadata.get(field)
+            meta_value = get(self.metadata, field)
             if meta_value:
                 elements[field] = value(meta_value)
                 continue
 
             if field == 'number': field = 'tracknumber'
-            tag_value = self.tags.get(field)
+            tag_value = get(self.tags, field)
             if tag_value:
                 elements[field] = value(tag_value)
                 # TODO: add zero-padding for tracknumber
@@ -139,6 +139,17 @@ def value(string_or_list):
         return string_or_list[0]
     else:
         return ', '.join(string_or_list)
+
+
+def get(container, key, default=None):
+    '''Helper function for dict-like access to object attributes'''
+    try:
+        return container.get(key, default)
+    except AttributeError:
+        try:
+            return getattr(container, key)
+        except AttributeError:
+            return default
 
 
 def find_files(directory):
