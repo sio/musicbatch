@@ -3,6 +3,8 @@ CLI application for transcoding music files
 '''
 
 
+import os.path
+
 import mutagen
 from ruamel import yaml
 
@@ -30,11 +32,14 @@ def run():
 class TranscodingTask:
     '''Stores information required to transcode a single music file'''
 
-    def __init__(self, filename, metadata=None):
+    def __init__(self, filename, seq_number=0):
         self.source = filename
-        self.metadata = metadata.data if metadata else {}  # hods object
+        self.source_dir = os.path.dirname(filename)
+
+        self._metadata = None
         self._tags = None
         self._path_elements = None
+        self._target = None
 
 
     def __repr__(self):
@@ -42,6 +47,25 @@ class TranscodingTask:
             cls = self.__class__.__name__,
             filename = self.source,
         )
+
+
+    @property
+    def target(self):
+        '''Relative path to the transcoding destination file'''
+        if self._target is not None:
+            return self._target
+        # TODO: calculate target path (relative)
+        return self._target
+
+
+    @target.setter
+    def target(self, value):
+        self._target = value
+
+
+    @property
+    def target_dir(self):
+        return os.path.dirname(self.target)
 
 
     @property
@@ -57,6 +81,25 @@ class TranscodingTask:
         if self._tags is None:
             self._tags = mutagen.File(self.source, easy=True).tags
         return self._tags
+
+
+    @property
+    def metadata(self):
+        '''Metadata object (if any)'''
+        if self._metadata is not None:
+            return self._metadata
+
+        metadata_filename = 'album_hods.yml'
+        possible_paths = ['.', '..']
+
+        for subdir in possible_paths:
+            candidate_path = os.path.join(self.source_dir, subdir, metadata_filename)
+            if os.path.exists(candidate_path):
+                self._metadata = Metadata(filename=candidate_path)
+        if self._metadata is None:
+            self._metadata = {}  # fallback value
+        return self._metadata
+
 
 
     @property
