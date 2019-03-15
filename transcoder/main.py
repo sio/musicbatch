@@ -104,9 +104,6 @@ class TranscodingJob:
         None: VorbisTranscoder,
         'vorbis': VorbisTranscoder,
     }
-    LOSSY_EXTENSIONS = {'ogg', 'mp3', 'aac'}
-    LOSSLESS_EXTENSIONS = {'flac', 'ape', 'wav', 'pcm', 'raw'}
-    KNOWN_EXTENSIONS = LOSSY_EXTENSIONS | LOSSLESS_EXTENSIONS
 
 
     def __init__(self, config_file):
