@@ -33,8 +33,8 @@ class TranscodingTask:
     def __init__(self, filename, metadata=None):
         self.source = filename
         self.metadata = metadata.data if metadata else {}  # hods object
-        self.tags = self.read_tags()
-        self.path_elements = self.calculate_path_elements()
+        self._tags = None
+        self._path_elements = None
 
 
     def __repr__(self):
@@ -44,7 +44,8 @@ class TranscodingTask:
         )
 
 
-    def read_tags(self):
+    @property
+    def tags(self):
         '''Read music tags from file headers'''
         # Values from metadata file are ignored intentionally:
         #  - There is no point using "Various Artists" placeholder for
@@ -53,12 +54,17 @@ class TranscodingTask:
         #    tags
         #  - Genre, year and other less important tags are not worth the
         #    special treatment
-        tags = mutagen.File(self.source, easy=True).tags
-        return tags
+        if self._tags is None:
+            self._tags = mutagen.File(self.source, easy=True).tags
+        return self._tags
 
 
-    def calculate_path_elements(self):
+    @property
+    def path_elements(self):
         '''Calculate target path elements for transcoding this file'''
+        if self._path_elements is not None:
+            return self._path_elements
+
         allowed_fields = {
             'artist',
             'album',
@@ -86,7 +92,8 @@ class TranscodingTask:
         if len(elements['number']) == 1:
             elements['number'] = '0' + elements['number']
 
-        return elements
+        self._path_elements = elements
+        return self._path_elements
 
 
 
