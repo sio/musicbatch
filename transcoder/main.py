@@ -79,8 +79,12 @@ class TranscodingTask:
             tag_value = get(self.tags, field)
             if tag_value:
                 elements[field] = value(tag_value)
-                # TODO: add zero-padding for tracknumber
                 continue
+
+            elements[field] = ''  # Fall back to empty string
+
+        if len(elements['number']) == 1:
+            elements['number'] = '0' + elements['number']
 
         return elements
 
