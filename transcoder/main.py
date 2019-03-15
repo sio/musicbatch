@@ -35,6 +35,7 @@ class TranscodingTask:
     def __init__(self, filename, seq_number=0):
         self.source = filename
         self.source_dir = os.path.dirname(filename)
+        self.number = seq_number
 
         self._metadata = None
         self._tags = None
@@ -112,28 +113,18 @@ class TranscodingTask:
             'artist',
             'album',
             'year',
-            'number',
             'title',
             'genre',
+            # 'number' field is calculated by sort order
         }
 
         elements = {}
+        elements['number'] = '{:02d}'.format(self.number)
         for field in allowed_fields:
-            meta_value = get(self.metadata, field)
-            if meta_value:
-                elements[field] = value(meta_value)
-                continue
-
-            if field == 'number': field = 'tracknumber'
-            tag_value = get(self.tags, field)
-            if tag_value:
-                elements[field] = value(tag_value)
-                continue
-
-            elements[field] = ''  # Fall back to empty string
-
-        if len(elements['number']) == 1:
-            elements['number'] = '0' + elements['number']
+            for container in (self.metadata, self.tags):
+                if elements.get(field):
+                    continue
+                elements[field] = value(get(container, field))
 
         self._path_elements = elements
         return self._path_elements
@@ -186,8 +177,10 @@ def value(string_or_list):
     '''
     if isinstance(string_or_list, str):
         result = string_or_list
+    elif string_or_list is None or len(string_or_list) == 0:
+        result = ''
     elif len(string_or_list) == 1:
-        result = string_or_list[0]
+        result = str(string_or_list[0])
     else:
         result = ', '.join(string_or_list)
     return result.strip()
