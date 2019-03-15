@@ -134,11 +134,12 @@ def value(string_or_list):
     strings
     '''
     if isinstance(string_or_list, str):
-        return string_or_list
+        result = string_or_list
     elif len(string_or_list) == 1:
-        return string_or_list[0]
+        result = string_or_list[0]
     else:
-        return ', '.join(string_or_list)
+        result = ', '.join(string_or_list)
+    return result.strip()
 
 
 def get(container, key, default=None):
