@@ -41,6 +41,7 @@ class TranscodingTask:
         self._tags = None
         self._path_elements = None
         self._target = None
+        self._target_dir = None
 
 
     def __repr__(self):
@@ -66,7 +67,9 @@ class TranscodingTask:
 
     @property
     def target_dir(self):
-        return os.path.dirname(self.target)
+        if self._target_dir is None:
+            self._target_dir = os.path.dirname(self.target)
+        return self._target_dir
 
 
     @property
