@@ -47,6 +47,7 @@ def run(config_file):
     job = TranscodingJob(config_file)
     TranscodingTask.pattern = job.output_pattern  # TODO: refactor to avoid messing with class attributes
     tasks = TranscodingQueue(job.inputs)
+    import pdb; pdb.set_trace()
     with multiprocessing.Pool() as processes:
         processes.imap_unordered(job.transcode, tasks)
 
@@ -84,7 +85,7 @@ class TranscodingJob:
         if lossy_action == 'allow_bad_transcodes':
             self.lossy_action = self.transcoder
         elif lossy_action == 'copy':
-            self.lossy_action = VerbatimFileCopy
+            self.lossy_action = VerbatimFileCopy()
 
         if not os.path.isdir(self.output_dir):
             os.makedirs(self.output_dir)
