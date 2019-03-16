@@ -2,6 +2,7 @@
 
 import os
 
+import mutagen
 import transcoder
 
 
@@ -100,7 +101,7 @@ class TranscodingTask:
 
 
     def __repr__(self):
-        return '{cls}({filename})'.format(
+        return '{cls}({filename!r})'.format(
             cls = self.__class__.__name__,
             filename = self.source,
         )
