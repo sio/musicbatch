@@ -209,13 +209,3 @@ def get(container, key, default=None):
             return getattr(container, key)
         except AttributeError:
             return default
-
-
-def find_files(directory):
-    '''
-    Find valid music files in a given directory
-    '''
-
-
-def copy_with_tags():
-    ''''''
