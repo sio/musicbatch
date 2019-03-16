@@ -7,7 +7,6 @@ import os.path
 import re
 from shutil import copyfile
 
-import mutagen
 from pydub import AudioSegment
 
 
@@ -16,10 +15,9 @@ class Transcoder:
     '''Generic base class for transcoders'''
 
 
-    def __init__(self, quality=None, copy_tags=False, *a, **ka):
+    def __init__(self, quality=None, *a, **ka):
         self.export_params = self.configure(quality, *a, **ka)
         self.extension = self.export_params['format']
-        self.copy_tags = copy_tags
         self.quality = quality
 
 
@@ -45,16 +43,11 @@ class Transcoder:
         make_target_directory(output_filename)
         audio.export(output_filename, **self.export_params)
 
-        if self.copy_tags:
-            # Do not copy tags unless explicitly asked to
-            copy_tags(input_filename, output_filename)
-
 
     def __repr__(self):
-        return '<{cls}(quality={quality!r}, copy_tags={copy_tags})>'.format(
+        return '<{cls}(quality={quality!r}})>'.format(
             cls = self.__class__.__name__,
             quality = self.quality,
-            copy_tags = self.copy_tags,
         )
 
 
@@ -87,8 +80,8 @@ class VerbatimFileCopy:
 
     This is useful for avoiding bad transcodes (lossy to lossy)
     '''
-    def __init__(self, quality=None, copy_tags=False, *a, **ka):
-        self.copy_tags = copy_tags
+    def __init__(self, quality=None, *a, **ka):
+        pass
 
 
     def __call__(self, input_filename, output_filename):
@@ -97,24 +90,12 @@ class VerbatimFileCopy:
             output_filename += extension
         make_target_directory(output_filename)
         copyfile(input_filename, output_filename)
-        if self.copy_tags:
-            copy_tags(input_filename, output_filename)
 
 
     def __repr__(self):
-        return '<{cls}(copy_tags={copy_tags})>'.format(
+        return '<{cls}()>'.format(
             cls = self.__class__.__name__,
-            copy_tags = self.copy_tags,
         )
-
-
-
-def copy_tags(input_filename, output_filename):
-    '''Copy tags from one music file to another'''
-    tags = mutagen.File(input_filename, easy=True).tags
-    exported = mutagen.File(output_filename, easy=True)
-    exported.tags.update(tags)
-    exported.save()
 
 
 
