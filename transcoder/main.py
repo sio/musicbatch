@@ -8,7 +8,12 @@ import os.path
 import mutagen
 from ruamel import yaml
 
-from transcoder import DEFAULT_CONFIG
+from transcoder import (
+    DEFAULT_CONFIG,
+    KNOWN_EXTENSIONS,
+    LOSSLESS_EXTENSIONS,
+    LOSSY_EXTENSIONS,
+)
 from transcoder.encoders import (
     VerbatimFileCopy,
     VorbisTranscoder,
@@ -73,3 +78,20 @@ class TranscodingJob:
             cls=self.__class__.__name__,
             config=self.config_file,
         )
+
+
+    def transcode(self, task):
+        '''Execute a single transcoding task'''
+        source_format = os.path.splitext(task.source)[1].lower()
+        if source_format in LOSSLESS_EXTENSIONS:
+            worker = self.transcoder
+        else:
+            worker = self.lossy_action
+
+        # Step 1: Transcode
+        worker(task.source, task.target)
+
+        # Step 2: Copy music tags
+        result = mutagen.File(task.target, easy=True)
+        result.tags.update(task.tags)
+        result.save()
