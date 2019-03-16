@@ -5,6 +5,7 @@ Workers for transcoding music into different target formats
 
 import os.path
 import re
+from shutil import copyfile
 
 import mutagen
 from pydub import AudioSegment
@@ -41,15 +42,12 @@ class Transcoder:
         if not output_filename.lower().endswith(extension):
             output_filename += extension
 
-        self.make_target_directory(output_filename)
+        make_target_directory(output_filename)
         audio.export(output_filename, **self.export_params)
 
         if self.copy_tags:
             # Do not copy tags unless explicitly asked to
-            tags = mutagen.File(input_filename, easy=True).tags
-            exported = mutagen.File(output_filename, easy=True)
-            exported.tags.update(tags)
-            exported.save()
+            copy_tags(input_filename, output_filename)
 
 
     def __repr__(self):
@@ -58,12 +56,6 @@ class Transcoder:
             quality = self.quality,
             copy_tags = self.copy_tags,
         )
-
-    @staticmethod
-    def make_target_directory(output_filename):
-        target = os.path.dirname(output_filename)
-        if not os.path.exists(target):
-            os.makedirs(target)
 
 
 
@@ -85,3 +77,49 @@ class VorbisTranscoder(Transcoder):
             'codec': 'libvorbis',
             'parameters': ['-aq', numeric_quality],
         }
+
+
+
+class VerbatimFileCopy:
+    '''
+    Transcoder-like object that does no transcoding but instead just copies the
+    source files.
+
+    This is useful for avoiding bad transcodes (lossy to lossy)
+    '''
+    def __init__(self, quality=None, copy_tags=False, *a, **ka):
+        self.copy_tags = copy_tags
+
+
+    def __call__(self, input_filename, output_filename):
+        extension = '.' + input_filename.rsplit('.')[1].lower()
+        if not output_filename.lower().endswith(extension):
+            output_filename += extension
+        make_target_directory(output_filename)
+        copyfile(input_filename, output_filename)
+        if self.copy_tags:
+            copy_tags(input_filename, output_filename)
+
+
+    def __repr__(self):
+        return '<{cls}(copy_tags={copy_tags})>'.format(
+            cls = self.__class__.__name__,
+            copy_tags = self.copy_tags,
+        )
+
+
+
+def copy_tags(input_filename, output_filename):
+    '''Copy tags from one music file to another'''
+    tags = mutagen.File(input_filename, easy=True).tags
+    exported = mutagen.File(output_filename, easy=True)
+    exported.tags.update(tags)
+    exported.save()
+
+
+
+def make_target_directory(output_filename):
+    '''Make sure that directory for this file exists'''
+    target = os.path.dirname(output_filename)
+    if not os.path.exists(target):
+        os.makedirs(target)
