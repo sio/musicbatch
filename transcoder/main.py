@@ -26,6 +26,11 @@ from transcoder.queue import (
 
 
 
+import logging
+log = logging.getLogger(__name__)
+
+
+
 def run(config_file):
     '''
     CLI entry point
@@ -84,6 +89,7 @@ class TranscodingJob:
         if not os.path.isdir(self.output_dir):
             os.makedirs(self.output_dir)
 
+        log.debug('Initialized {}'.format(self))
         # TODO: handle 'extras' section (lyrics, cover, etc)
 
 
@@ -96,6 +102,8 @@ class TranscodingJob:
 
     def transcode(self, task):
         '''Execute a single transcoding task'''
+        log.debug('Started transcoding {task}'.format(task=task))
+
         source_format = os.path.splitext(task.source)[1][1:].lower()
         if source_format in LOSSLESS_EXTENSIONS:
             worker = self.transcoder
@@ -109,3 +117,5 @@ class TranscodingJob:
         result = mutagen.File(task.target, easy=True)
         result.tags.update(task.tags)
         result.save()
+
+        log.debug('Finished transcoding {task}'.format(task=task))

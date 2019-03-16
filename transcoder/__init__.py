@@ -10,3 +10,6 @@ DEFAULT_CONFIG = {
     'quality': 'q5',
     'lossy_source': 'copy',
 }
+
+
+from transcoder.logging import log  # Initialize logger

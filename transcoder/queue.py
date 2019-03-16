@@ -5,12 +5,26 @@ import os
 import transcoder
 
 
+import logging
+log = logging.getLogger(__name__)
+
+
+
 class TranscodingQueue:
     '''Queue of files to be transcoded'''
 
     def __init__(self, directories):
+        self.directories = directories
         self.prev_task = None
         self.files = self.traverse(directories)
+        log.debug('Initialized {}'.format(self))
+
+
+    def __repr__(self):
+        return '{cls}({dirs})'.format(
+            cls = self.__class__.__name__,
+            dirs = list(self.directories),
+        )
 
 
     def __next__(self):
