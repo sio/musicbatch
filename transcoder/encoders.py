@@ -17,6 +17,7 @@ class Transcoder:
 
     def __init__(self, quality=None, copy_tags=False, *a, **ka):
         self.export_params = self.configure(quality, *a, **ka)
+        self.extension = self.export_params['format']
         self.copy_tags = copy_tags
         self.quality = quality
 
@@ -35,6 +36,10 @@ class Transcoder:
         '''Transcode file from one format to another'''
         input_format = input_filename.rsplit('.')[1].lower()  # ffmpeg format names usually match extension
         audio = AudioSegment.from_file(input_filename, input_format)
+
+        extension = '.' + self.extension.lower()
+        if not output_filename.lower().endswith(extension):
+            output_filename += extension
 
         self.make_target_directory(output_filename)
         audio.export(output_filename, **self.export_params)
