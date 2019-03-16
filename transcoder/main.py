@@ -110,7 +110,7 @@ class TranscodingTask:
         for subdir in possible_paths:
             candidate_path = os.path.join(self.source_dir, subdir, metadata_filename)
             if os.path.exists(candidate_path):
-                self._metadata = Metadata(filename=candidate_path)
+                self._metadata = Metadata(filename=candidate_path).data
         if self._metadata is None:
             self._metadata = {}  # fallback value
         return self._metadata
