@@ -32,7 +32,11 @@ def run():
 class TranscodingTask:
     '''Stores information required to transcode a single music file'''
 
-    def __init__(self, filename, seq_number=0):
+
+    pattern = None  # must set from outside once for all tasks
+
+
+    def __init__(self, filename, seq_number=1, target_dir=None):
         self.source = filename
         self.source_dir = os.path.dirname(filename)
         self.number = seq_number
@@ -41,7 +45,14 @@ class TranscodingTask:
         self._tags = None
         self._path_elements = None
         self._target = None
-        self._target_dir = None
+        self._target_dir = target_dir
+
+        if self.pattern is None:
+            raise ValueError(
+                'Can not use {cls} without setting pattern value first'.format(
+                    cls=self.__class__.__name__
+                )
+            )
 
 
     def __repr__(self):
@@ -56,13 +67,13 @@ class TranscodingTask:
         '''Relative path to the transcoding destination file'''
         if self._target is not None:
             return self._target
-        # TODO: calculate target path (relative)
+
+        target = self.pattern.format(**self.path_elements)
+        if self._target_dir is not None:
+            target = os.path.join(self._target_dir, os.path.basename(target))
+
+        self._target = target
         return self._target
-
-
-    @target.setter
-    def target(self, value):
-        self._target = value
 
 
     @property

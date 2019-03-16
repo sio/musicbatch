@@ -22,13 +22,17 @@ class TranscodingQueue:
 
         if prev_task is not None \
         and os.path.dirname(next_file) == prev_task.source_dir:
+            # files from same directory always go to the same target
             next_target_dir = prev_task.target_dir
             number = prev_task.number
 
-        next_task = TranscodingTask(next_file, number, next_target_dir)
-        next_task.target
-                # files from same directory always go to the same target
-        return filename
+        next_task = TranscodingTask(
+                        filename = next_file,
+                        seq_number = number + 1,
+                        target_dir = next_target_dir
+        )
+        self.prev_task = next_task
+        return next_task
 
 
     def __iter__(self):
