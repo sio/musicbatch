@@ -8,7 +8,9 @@ import os.path
 import mutagen
 from ruamel import yaml
 
+from transcoder import DEFAULT_CONFIG
 from transcoder.encoders import (
+    VerbatimFileCopy,
     VorbisTranscoder,
 )
 
@@ -42,22 +44,28 @@ class TranscodingJob:
         '''Initialize transcoding job'''
         self.config_file = config_file
 
+        # TODO: validate config file against schema
+
         with open(config_file) as f:
             config = yaml.load(f, Loader=yaml.RoundTripLoader)
             output = config.get('output', {})
 
-        self.job_id = config.get('name')
+        self.job_id = config.get('name', DEFAULT_CONFIG['name'])
         self.inputs = config.get('input', [])
         self.output_dir = output.get('directory')
-        self.output_pattern = output.get(
-                                'pattern',
-                                '{artist} - {year} - {album}/{number} {title}'
-                              )
-        self.lossy_action = output.get('lossy_source')  # TODO: replace with function
+        self.output_pattern = output.get('pattern', DEFAULT_CONFIG['pattern'])
 
-        encoder = output.get('format', 'vorbis')
-        quality = output.get('quality')
+        encoder = output.get('format', DEFAULT_CONFIG['format'])
+        quality = output.get('quality', DEFAULT_CONFIG['quality'])
         self.transcoder = self.ENCODERS.get(encoder)(quality)
+
+        lossy_action = output.get('lossy_source', DEFAULT_CONFIG['lossy_source'])
+        if lossy_action == 'allow_bad_transcodes':
+            self.lossy_action = self.transcoder
+        elif lossy_action == 'copy':
+            self.lossy_action = VerbatimFileCopy
+
+        # TODO: handle 'extras' section (lyrics, cover, etc)
 
 
     def __repr__(self):
