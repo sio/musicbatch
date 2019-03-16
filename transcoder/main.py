@@ -3,6 +3,7 @@ CLI application for transcoding music files
 '''
 
 
+import multiprocessing
 import os.path
 
 import mutagen
@@ -18,10 +19,14 @@ from transcoder.encoders import (
     VerbatimFileCopy,
     VorbisTranscoder,
 )
+from transcoder.queue import (
+    TranscodingQueue,
+    TranscodingTask,
+)
 
 
 
-def run():
+def run(config_file):
     '''
     CLI entry point
     '''
@@ -33,6 +38,12 @@ def run():
     #    - Fill tags
     #    - Copy lyrics
     #    - Copy cover art
+
+    job = TranscodingJob(config_file)
+    TranscodingTask.pattern = job.output_pattern  # TODO: refactor to avoid messing with class attributes
+    tasks = TranscodingQueue(job.inputs)
+    with multiprocessing.Pool() as processes:
+        processes.imap_unordered(job.transcode, tasks)
 
 
 
@@ -89,7 +100,7 @@ class TranscodingJob:
             worker = self.lossy_action
 
         # Step 1: Transcode
-        worker(task.source, task.target)
+        worker(task.source, os.path.join(self.output_dir, task.target))
 
         # Step 2: Copy music tags
         result = mutagen.File(task.target, easy=True)
