@@ -96,7 +96,7 @@ class TranscodingJob:
 
     def transcode(self, task):
         '''Execute a single transcoding task'''
-        source_format = os.path.splitext(task.source)[1].lower()
+        source_format = os.path.splitext(task.source)[1][1:].lower()
         if source_format in LOSSLESS_EXTENSIONS:
             worker = self.transcoder
         else:

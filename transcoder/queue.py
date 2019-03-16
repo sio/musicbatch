@@ -52,7 +52,7 @@ class TranscodingQueue:
     def validate(self, filename):
         '''Check if file is eligible for transcoding'''
         try:
-            extension = filename.rsplit('.')[1].lower()
+            extension = os.path.splitext(filename)[1][1:].lower()
             return extension in transcoder.KNOWN_EXTENSIONS
         except IndexError:
             return False

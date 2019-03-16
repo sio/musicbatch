@@ -35,7 +35,7 @@ class Transcoder:
 
     def __call__(self, input_filename, output_filename):
         '''Transcode file from one format to another'''
-        input_format = input_filename.rsplit('.')[1].lower()  # ffmpeg format names usually match extension
+        input_format = os.path.splitext(input_filename)[1][1:].lower()  # ffmpeg format names usually match extension
         audio = AudioSegment.from_file(input_filename, input_format)
 
         extension = '.' + self.extension.lower()
@@ -92,7 +92,7 @@ class VerbatimFileCopy:
 
 
     def __call__(self, input_filename, output_filename):
-        extension = '.' + input_filename.rsplit('.')[1].lower()
+        extension = '.' + os.path.splitext(input_filename)[1][1:].lower()
         if not output_filename.lower().endswith(extension):
             output_filename += extension
         make_target_directory(output_filename)
