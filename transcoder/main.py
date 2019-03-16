@@ -4,7 +4,7 @@ CLI application for transcoding music files
 
 
 import multiprocessing
-import os.path
+import os
 
 import mutagen
 from ruamel import yaml
@@ -80,6 +80,9 @@ class TranscodingJob:
             self.lossy_action = self.transcoder
         elif lossy_action == 'copy':
             self.lossy_action = VerbatimFileCopy
+
+        if not os.path.isdir(self.output_dir):
+            os.makedirs(self.output_dir)
 
         # TODO: handle 'extras' section (lyrics, cover, etc)
 
