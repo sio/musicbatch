@@ -57,6 +57,8 @@ def run(config_file):
     #       They consume the whole generator before starting processing its values,
     #       hence the Queue approach.
 
+    # TODO: Move Queue logic into its own function
+
     def worker():
         while True:
             task = queue.get()
