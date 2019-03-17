@@ -5,6 +5,8 @@ import os
 import mutagen
 import transcoder
 
+from hods import Metadata
+
 
 import logging
 log = logging.getLogger(__name__)
@@ -157,6 +159,8 @@ class TranscodingTask:
         for subdir in possible_paths:
             candidate_path = os.path.join(self.source_dir, subdir, metadata_filename)
             if os.path.exists(candidate_path):
+                # TODO: handle jsonschema.exceptions.ValidationError
+                # TODO: handle hash mismatch in metadata file
                 self._metadata = Metadata(filename=candidate_path).data
         if self._metadata is None:
             self._metadata = {}  # fallback value
