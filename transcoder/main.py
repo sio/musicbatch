@@ -3,8 +3,9 @@ CLI application for transcoding music files
 '''
 
 
-import multiprocessing
 import os
+from queue import Queue
+from threading import Thread
 
 import mutagen
 from ruamel import yaml
@@ -47,9 +48,38 @@ def run(config_file):
     job = TranscodingJob(config_file)
     TranscodingTask.pattern = job.output_pattern  # TODO: refactor to avoid messing with class attributes
     tasks = TranscodingQueue(job.inputs)
-    import pdb; pdb.set_trace()
-    with multiprocessing.Pool() as processes:
-        processes.imap_unordered(job.transcode, tasks)
+
+    workers_num = os.cpu_count()
+    queue = Queue(maxsize=workers_num * 5)  # Ensure there is enough tasks scheduled, but not too many
+    threads = []
+
+    # NOTE: ThreadPoolExecutor and multiprocessing.Pool.imap_unordered are greedy.
+    #       They consume the whole generator before starting processing its values,
+    #       hence the Queue approach.
+
+    def worker():
+        while True:
+            task = queue.get()
+            if task is None:
+                break
+            job.transcode(task)
+            queue.task_done()
+
+    for i in range(workers_num):  # create worker threads
+        t = Thread(target=worker)
+        t.start()
+        threads.append(t)
+
+    for task in tasks:  # queue tasks at the sane pace
+        queue.put(task)
+
+    queue.join()  # block until all tasks are done
+
+    for i in range(workers_num):  # stop workers
+        queue.put(None)
+    for t in threads:
+        t.join()
+
 
 
 
