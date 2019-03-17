@@ -107,7 +107,10 @@ def make_target_directory(output_filename):
     '''Make sure that directory for this file exists'''
     target = os.path.dirname(output_filename)
     if not os.path.exists(target):
-        os.makedirs(target)
+        try:
+            os.makedirs(target)
+        except FileExistsError:  # another thread has already created the directory
+            pass
 
 
 
