@@ -99,6 +99,8 @@ class TranscodingTask:
                 )
             )
 
+        log.debug('Initialized {}'.format(self))
+
 
     def __repr__(self):
         return '{cls}({filename!r})'.format(

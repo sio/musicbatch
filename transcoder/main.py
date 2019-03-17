@@ -133,7 +133,7 @@ class TranscodingJob:
 
     def transcode(self, task):
         '''Execute a single transcoding task'''
-        log.debug('Started transcoding {task}'.format(task=task))
+        log.debug('Started {task}'.format(task=task))
 
         source_format = os.path.splitext(task.source)[1][1:].lower()
         if source_format in LOSSLESS_EXTENSIONS:
@@ -152,4 +152,4 @@ class TranscodingJob:
         result.tags.update(task.tags)
         result.save()
 
-        log.debug('Finished transcoding {task}'.format(task=task))
+        log.debug('Finished {task}'.format(task=task))
