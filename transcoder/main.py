@@ -4,6 +4,7 @@ CLI application for transcoding music files
 
 
 import os
+from datetime import datetime
 from queue import Queue
 from threading import Thread
 
@@ -97,6 +98,7 @@ class TranscodingJob:
     def __init__(self, config_file):
         '''Initialize transcoding job'''
         self.config_file = config_file
+        self._timestamp = None
 
         # TODO: validate config file against schema
 
@@ -143,6 +145,9 @@ class TranscodingJob:
         else:
             worker = self.lossy_action
 
+        if self._timestamp is None:  # record the time of first transcoding task
+            self._timestamp = datetime.now()
+
         # TODO: cleverly skip target if it's already done (check timestamp)
 
         # Step 1: Transcode
@@ -157,3 +162,10 @@ class TranscodingJob:
         result.save()
 
         log.debug('Finished {task}'.format(task=task))
+
+
+    @property
+    def timestamp(self):
+        '''Date and time of starting the first transcoding task in this job'''
+        # TODO: Use TranscodingJob.timestamp for detecting destination duplicates
+        return self._timestamp
