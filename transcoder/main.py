@@ -141,6 +141,8 @@ class TranscodingJob:
         else:
             worker = self.lossy_action
 
+        # TODO: cleverly skip target if it's already done (check timestamp)
+
         # Step 1: Transcode
         result_filename = worker(
             task.source,
