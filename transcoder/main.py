@@ -112,10 +112,13 @@ class TranscodingJob:
             worker = self.lossy_action
 
         # Step 1: Transcode
-        worker(task.source, os.path.join(self.output_dir, task.target))
+        result_filename = worker(
+            task.source,
+            os.path.join(self.output_dir, task.target)
+        )
 
         # Step 2: Copy music tags
-        result = mutagen.File(task.target, easy=True)
+        result = mutagen.File(result_filename, easy=True)
         result.tags.update(task.tags)
         result.save()
 

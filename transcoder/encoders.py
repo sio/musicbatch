@@ -40,8 +40,10 @@ class Transcoder:
         if not output_filename.lower().endswith(extension):
             output_filename += extension
 
+        output_filename = safe_filepath(output_filename)
         make_target_directory(output_filename)
         audio.export(output_filename, **self.export_params)
+        return output_filename
 
 
     def __repr__(self):
@@ -88,8 +90,10 @@ class VerbatimFileCopy:
         extension = '.' + os.path.splitext(input_filename)[1][1:].lower()
         if not output_filename.lower().endswith(extension):
             output_filename += extension
+        output_filename = safe_filepath(output_filename)
         make_target_directory(output_filename)
         copyfile(input_filename, output_filename)
+        return output_filename
 
 
     def __repr__(self):
@@ -104,3 +108,11 @@ def make_target_directory(output_filename):
     target = os.path.dirname(output_filename)
     if not os.path.exists(target):
         os.makedirs(target)
+
+
+
+_bad_characters = re.compile(r'[^\w\d%s !.()_+-]' % os.sep)
+def safe_filepath(path):
+    '''Convert arbitrary file path into a safe version suitable for any file system'''
+    placeholder = ''
+    return _bad_characters.sub(placeholder, path)
