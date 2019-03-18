@@ -50,39 +50,55 @@ def run(config_file):
     TranscodingTask.pattern = job.output_pattern  # TODO: refactor to avoid messing with class attributes
     tasks = TranscodingQueue(job.inputs)
 
-    workers_num = os.cpu_count()
-    queue = Queue(maxsize=workers_num * 5)  # Ensure there is enough tasks scheduled, but not too many
-    threads = []
+    execute_in_threadqueue(job.transcode, tasks, buffer_size=20)
 
+
+
+def execute_in_threadqueue(function, args_seq,
+                           num_threads=None, buffer_size=None, break_value=None):
+    '''
+    Execute a function with each argument from a given sequence.
+
+    Execution in done in threads, args_seq is consumed lazily with a sensible
+    lookahead (use buffer_size). break_value is a singleton object that can
+    never occur in the args_seq - it is used to signal the end of the sequence
+    to each thread.
+    '''
     # NOTE: ThreadPoolExecutor and multiprocessing.Pool.imap_unordered are greedy.
     #       They consume the whole generator before starting processing its values,
     #       hence the Queue approach.
 
-    # TODO: Move Queue logic into its own function
+    if num_threads is None:
+        num_threads = os.cpu_count()
+    if buffer_size is None:
+        buffer_size = num_threads * 5
+
+    queue = Queue(maxsize=buffer_size)  # ensure there is enough tasks scheduled, but not too many
+    threads = []
 
     def worker():
         while True:
+            log.debug('Requesting a task from the queue (size={})'.format(queue.qsize()))
             task = queue.get()
-            if task is None:
+            if task is break_value:
                 break
-            job.transcode(task)
+            function(task)
             queue.task_done()
 
-    for i in range(workers_num):  # create worker threads
+    for i in range(num_threads):  # create worker threads
         t = Thread(target=worker)
         t.start()
         threads.append(t)
 
-    for task in tasks:  # queue tasks at the sane pace
+    for task in args_seq:  # queue tasks at the sane pace
         queue.put(task)
 
     queue.join()  # block until all tasks are done
 
-    for i in range(workers_num):  # stop workers
-        queue.put(None)
+    for i in range(num_threads):  # stop workers
+        queue.put(break_value)
     for t in threads:
         t.join()
-
 
 
 
