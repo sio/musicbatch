@@ -42,7 +42,7 @@ class Transcoder:
 
         output_filename = safe_filepath(output_filename)
         make_target_directory(output_filename)
-        audio.export(output_filename, **self.export_params)
+        audio.export(output_filename, **self.export_params)  # TODO: check if chaining creates pipe without temp wav file
         return output_filename
 
 
