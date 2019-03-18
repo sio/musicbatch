@@ -1,4 +1,5 @@
-
+# TODO: Write docstrings for modules
+# TODO: Move execute_in_threadqueue() into transcoder/queue.py
 
 import os
 
