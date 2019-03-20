@@ -91,6 +91,8 @@ def execute_in_threadqueue(function, args_seq,
         threads.append(t)
 
     for task in args_seq:  # queue tasks at the sane pace
+        if task is break_value:
+            raise ValueError('Break value can never occur in the args_seq')
         queue.put(task)
 
     queue.join()  # block until all tasks are done
