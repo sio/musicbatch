@@ -164,13 +164,16 @@ class TranscodingJob:
         if self._timestamp is None:  # record the time of first transcoding task
             self._timestamp = int(time.time())
 
-        # TODO: cleverly skip target if it's already done (check timestamp)
-
         # Step 1: Transcode
-        result_filename = worker(
+        result_filename, skipped = worker(
             task.source,
             os.path.join(self.output_dir, task.target)
         )
+        if skipped:
+            if os.path.getmtime(result_filename) > self.timestamp:
+                raise RuntimeError('Target path collision for {}'.format(result_filename))
+            log.debug('Skipped {task}'.format(task=task))
+            return
 
         # Step 2: Copy music tags
         result = mutagen.File(result_filename, easy=True)
@@ -186,5 +189,4 @@ class TranscodingJob:
         Date and time of starting the first transcoding task in this job
         (in Unix time format)
         '''
-        # TODO: Use TranscodingJob.timestamp for detecting destination duplicates
         return self._timestamp

@@ -42,8 +42,10 @@ class Transcoder:
 
         output_filename = safe_filepath(output_filename)
         make_target_directory(output_filename)
-        audio.export(output_filename, **self.export_params)  # TODO: check if chaining creates pipe without temp wav file
-        return output_filename
+        skip = skip_action(input_filename, output_filename)
+        if not skip:
+            audio.export(output_filename, **self.export_params)  # TODO: check if chaining creates pipe without temp wav file
+        return output_filename, skip
 
 
     def __repr__(self):
@@ -92,14 +94,38 @@ class VerbatimFileCopy:
             output_filename += extension
         output_filename = safe_filepath(output_filename)
         make_target_directory(output_filename)
-        copyfile(input_filename, output_filename)
-        return output_filename
+        skip = skip_action(input_filename, output_filename)
+        if not skip:
+            copyfile(input_filename, output_filename)
+        return output_filename, skip
 
 
     def __repr__(self):
         return '<{cls}()>'.format(
             cls = self.__class__.__name__,
         )
+
+
+
+def mtime(filename):
+    '''
+    Get modification time of file (unix timestamp).
+    Return zero if file does not exist.
+    '''
+    try:
+        return os.path.getmtime(filename)
+    except FileNotFoundError:
+        return 0
+
+
+
+def skip_action(input_filename, output_filename):
+    '''Detect whether the transcoding can be skipped'''
+    input_mtime, output_mtime = map(
+        mtime,
+        (input_filename, output_filename)
+    )
+    return input_mtime < output_mtime
 
 
 
