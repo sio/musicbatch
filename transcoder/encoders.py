@@ -33,9 +33,6 @@ class Transcoder:
 
     def __call__(self, input_filename, output_filename):
         '''Transcode file from one format to another'''
-        input_format = os.path.splitext(input_filename)[1][1:].lower()  # ffmpeg format names usually match extension
-        audio = AudioSegment.from_file(input_filename, input_format)
-
         extension = '.' + self.extension.lower()
         if not output_filename.lower().endswith(extension):
             output_filename += extension
@@ -44,7 +41,11 @@ class Transcoder:
         make_target_directory(output_filename)
         skip = skip_action(input_filename, output_filename)
         if not skip:
-            audio.export(output_filename, **self.export_params)  # TODO: check if chaining creates pipe without temp wav file
+            # ffmpeg format names usually match extension
+            input_format = os.path.splitext(input_filename)[1][1:].lower()
+            AudioSegment \
+                .from_file(input_filename, input_format) \
+                .export(output_filename, **self.export_params)
         return output_filename, skip
 
 
