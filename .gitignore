@@ -6,3 +6,6 @@ build/
 .venv
 venv
 venv.bat
+
+# Profiler reports
+*.dat
