@@ -6,7 +6,7 @@ import os
 import mutagen
 import transcoder
 
-from hods import Metadata
+from hods import Metadata, TreeStructuredData
 
 
 import logging
@@ -36,11 +36,14 @@ class TranscodingQueue:
         prev_task = self.prev_task
         number = 0
         next_target_dir = None
+        metadata = {}
 
 
         if prev_task is not None \
         and os.path.dirname(next_file) == prev_task.source_dir:
             # files from same directory always go to the same target
+            # and share the same Metadata object
+            metadata = prev_task.metadata
             next_target_dir = prev_task.target_dir
             number = prev_task.number
 
@@ -49,6 +52,7 @@ class TranscodingQueue:
                         seq_number = number + 1,
                         target_dir = next_target_dir
         )
+        next_task.metadata = metadata
         self.prev_task = next_task
         return next_task
 
@@ -162,10 +166,24 @@ class TranscodingTask:
             if os.path.exists(candidate_path):
                 # TODO: handle jsonschema.exceptions.ValidationError
                 # TODO: handle hash mismatch in metadata file
+                log.debug('Reading metadata from {}'.format(candidate_path))
                 self._metadata = Metadata(filename=candidate_path).data
         if self._metadata is None:
             self._metadata = {}  # fallback value
         return self._metadata
+
+
+    @metadata.setter
+    def metadata(self, value):
+        if isinstance(value, TreeStructuredData):
+            log.debug('Reusing metadata object for {}'.format(self.source))
+            self._metadata = value
+        elif value == {}:
+            pass
+        else:
+            raise TypeError('Expected a TreeStructuredData object, got {}'.format(
+                value.__class__.__name__
+            ))
 
 
     @property
