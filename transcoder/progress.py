@@ -114,6 +114,7 @@ def show_progress(job, refresh_delay=0.5):
         last_time = False
         while not last_time:
             last_time = job.finished
+            if last_time: ticker.length = 0
             print(' {stats}{ticker: <3}\r'.format(
                 stats = job.stats.show(),
                 ticker = ticker,
