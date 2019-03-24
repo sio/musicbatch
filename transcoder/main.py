@@ -82,13 +82,25 @@ def execute_in_threadqueue(function, args_seq,
             task = queue.get()
             if task is break_value:
                 break
-            function(task)
-            queue.task_done()
+            try:
+                function(task)
+            finally:
+                queue.task_done()
 
-    for i in range(num_threads):  # create worker threads
-        t = Thread(target=worker)
+    def safe_worker():
+        try:
+            worker()
+        except Exception as e:
+            start_worker_thread()
+            raise e
+
+    def start_worker_thread():
+        t = Thread(target=safe_worker)
         t.start()
         threads.append(t)
+
+    for i in range(num_threads):  # create worker threads
+        start_worker_thread()
 
     for task in args_seq:  # queue tasks at the sane pace
         if task is break_value:
