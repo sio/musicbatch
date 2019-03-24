@@ -5,6 +5,8 @@ CLI application for transcoding music files
 
 import os
 import time
+import sys
+from contextlib import contextmanager
 
 import mutagen
 from ruamel import yaml
@@ -53,9 +55,18 @@ def run(config_file):
     TranscodingTask.pattern = job.output_pattern  # TODO: refactor to avoid messing with class attributes
     tasks = TranscodingQueue(job.inputs)
 
-    show_progress(job)   # start progress report thread
-    execute_in_threadqueue(job.transcode, tasks, buffer_size=20)
-    job.finished = True  # terminate progress report thread
+    with restore_stdin():
+        show_progress(job)   # start progress report thread
+        execute_in_threadqueue(job.transcode, tasks, buffer_size=20)
+        job.finished = True  # terminate progress report thread
+
+
+
+@contextmanager
+def restore_stdin():
+    stdin, stdout, stderr = sys.stdin, sys.stdout, sys.stderr
+    yield
+    sys.stdin, sys.stdout, sys.stderr = stdin, stdout, stderr
 
 
 
