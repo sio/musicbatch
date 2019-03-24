@@ -21,6 +21,10 @@ from transcoder.encoders import (
     VerbatimFileCopy,
     VorbisTranscoder,
 )
+from transcoder.progress import (
+    TranscodingStats,
+    show_progress,
+)
 from transcoder.queue import (
     TranscodingQueue,
     TranscodingTask,
@@ -50,7 +54,9 @@ def run(config_file):
     TranscodingTask.pattern = job.output_pattern  # TODO: refactor to avoid messing with class attributes
     tasks = TranscodingQueue(job.inputs)
 
+    show_progress(job)   # start progress report thread
     execute_in_threadqueue(job.transcode, tasks, buffer_size=20)
+    job.finished = True  # terminate progress report thread
 
 
 
@@ -127,6 +133,8 @@ class TranscodingJob:
 
     def __init__(self, config_file):
         '''Initialize transcoding job'''
+        self.stats = TranscodingStats()
+        self.finished = False
         self.config_file = config_file
         self._timestamp = None
 
@@ -186,6 +194,7 @@ class TranscodingJob:
         if skipped:
             if os.path.getmtime(result_filename) > self.timestamp:
                 raise RuntimeError('Target path collision for {}'.format(result_filename))
+            self.stats.record_skip()
             log.debug('Skipped {task}'.format(task=task))
             return
 
@@ -194,6 +203,7 @@ class TranscodingJob:
         result.tags.update(task.tags)
         result.save()
 
+        self.stats.record_done()
         log.debug('Finished {task}'.format(task=task))
 
 
