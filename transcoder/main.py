@@ -5,8 +5,6 @@ CLI application for transcoding music files
 
 import os
 import time
-from queue import Queue
-from threading import Thread
 
 import mutagen
 from ruamel import yaml
@@ -28,6 +26,7 @@ from transcoder.progress import (
 from transcoder.queue import (
     TranscodingQueue,
     TranscodingTask,
+    execute_in_threadqueue,
 )
 
 
@@ -57,68 +56,6 @@ def run(config_file):
     show_progress(job)   # start progress report thread
     execute_in_threadqueue(job.transcode, tasks, buffer_size=20)
     job.finished = True  # terminate progress report thread
-
-
-
-def execute_in_threadqueue(function, args_seq,
-                           num_threads=None, buffer_size=None, break_value=None):
-    '''
-    Execute a function with each argument from a given sequence.
-
-    Execution in done in threads, args_seq is consumed lazily with a sensible
-    lookahead (use buffer_size). break_value is a singleton object that can
-    never occur in the args_seq - it is used to signal the end of the sequence
-    to each thread.
-    '''
-    # NOTE: ThreadPoolExecutor and multiprocessing.Pool.imap_unordered are greedy.
-    #       They consume the whole generator before starting processing its values,
-    #       hence the Queue approach.
-
-    if num_threads is None:
-        num_threads = os.cpu_count()
-    if buffer_size is None:
-        buffer_size = num_threads * 5
-
-    queue = Queue(maxsize=buffer_size)  # ensure there is enough tasks scheduled, but not too many
-    threads = []
-
-    def worker():
-        while True:
-            log.debug('Requesting a task from the queue (size={})'.format(queue.qsize()))
-            task = queue.get()
-            if task is break_value:
-                break
-            try:
-                function(task)
-            finally:
-                queue.task_done()
-
-    def safe_worker():
-        try:
-            worker()
-        except Exception as e:
-            start_worker_thread()
-            raise e
-
-    def start_worker_thread():
-        t = Thread(target=safe_worker)
-        t.start()
-        threads.append(t)
-
-    for i in range(num_threads):  # create worker threads
-        start_worker_thread()
-
-    for task in args_seq:  # queue tasks at the sane pace
-        if task is break_value:
-            raise ValueError('Break value can never occur in the args_seq')
-        queue.put(task)
-
-    queue.join()  # block until all tasks are done
-
-    for i in range(num_threads):  # stop workers
-        queue.put(break_value)
-    for t in threads:
-        t.join()
 
 
 
