@@ -161,7 +161,7 @@ class TranscodingJob:
 
         # Step 2: Copy music tags
         result = mutagen.File(task.result, easy=True)
-        result.tags.update(task.tags)
+        result.tags.update(task.tags)  # TODO: drop blacklisted tags (embedded image)
         result.save()
 
         self.stats.record_done()
