@@ -156,6 +156,9 @@ class TranscodingTask:
         self.source_dir = os.path.dirname(filename)
         self.number = seq_number
 
+        self.result = None  # store full path to the result when task is done
+        self.skipped = None # indicate skipped task
+
         self._metadata = None
         self._tags = None
         self._path_elements = None
