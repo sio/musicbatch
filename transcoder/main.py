@@ -7,6 +7,7 @@ import os
 import time
 import sys
 from contextlib import contextmanager
+from threading import Thread
 
 import mutagen
 from ruamel import yaml
@@ -21,6 +22,7 @@ from transcoder.encoders import (
     VerbatimFileCopy,
     VorbisTranscoder,
 )
+from transcoder.cover import copy_coverart
 from transcoder.progress import (
     TranscodingStats,
     show_progress,
@@ -91,11 +93,13 @@ class TranscodingJob:
         with open(config_file) as f:
             config = yaml.load(f, Loader=yaml.RoundTripLoader)
             output = config.get('output', {})
+            extras = config.get('extras', {})
 
         self.job_id = config.get('name', DEFAULT_CONFIG['name'])
         self.inputs = config.get('input', [])
         self.output_dir = output.get('directory')
         self.output_pattern = output.get('pattern', DEFAULT_CONFIG['pattern'])
+        self.cover_size = extras.get('cover', DEFAULT_CONFIG['cover'])
 
         encoder = output.get('format', DEFAULT_CONFIG['format'])
         quality = output.get('quality', DEFAULT_CONFIG['quality'])
@@ -139,6 +143,13 @@ class TranscodingJob:
             task.source,
             os.path.join(self.output_dir, task.target)
         )
+
+        # Step 1a: Process extras (cover art, lyrics)
+        if self.cover_size:
+            Thread(
+                target=copy_coverart,
+                kwargs=dict(task=task, size=self.cover_size)
+            ).start()
 
         # Handle skipped transcodes
         if task.skipped:

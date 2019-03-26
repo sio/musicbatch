@@ -1,4 +1,5 @@
 mutagen
+pillow
 pydub
 ruamel.yaml
 https://github.com/sio/hods/archive/master.zip

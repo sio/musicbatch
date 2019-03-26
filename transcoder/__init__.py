@@ -9,6 +9,7 @@ DEFAULT_CONFIG = {
     'format': 'vorbis',
     'quality': 'q5',
     'lossy_source': 'copy',
+    'cover': 250,
 }
 
 
