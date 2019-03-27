@@ -54,8 +54,7 @@ def run(config_file):
     #    - Copy cover art
 
     job = TranscodingJob(config_file)
-    TranscodingTask.pattern = job.output_pattern  # TODO: refactor to avoid messing with class attributes
-    tasks = TranscodingQueue(job.inputs)
+    tasks = TranscodingQueue(job.inputs, job.output_pattern)
 
     with restore_stdin():
         show_progress(job)   # start progress report thread

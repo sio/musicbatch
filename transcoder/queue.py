@@ -80,8 +80,9 @@ def execute_in_threadqueue(function, args_seq,
 class TranscodingQueue:
     '''Queue of files to be transcoded'''
 
-    def __init__(self, directories):
+    def __init__(self, directories, pattern):
         self.directories = directories
+        self.pattern = pattern
         self.prev_task = None
         self.files = self.traverse(directories)
         log.debug('Initialized {}'.format(self))
@@ -112,6 +113,7 @@ class TranscodingQueue:
 
         next_task = TranscodingTask(
                         filename = next_file,
+                        pattern = self.pattern,
                         seq_number = number + 1,
                         target_dir = next_target_dir
         )
@@ -148,12 +150,10 @@ class TranscodingTask:
     '''Stores information required to transcode a single music file'''
 
 
-    pattern = None  # must set from outside once for all tasks
-
-
-    def __init__(self, filename, seq_number=1, target_dir=None):
+    def __init__(self, filename, pattern, seq_number=1, target_dir=None):
         self.source = filename
         self.source_dir = os.path.dirname(filename)
+        self.pattern = pattern
         self.number = seq_number
 
         self.result = None  # store full path to the result when task is done
@@ -164,13 +164,6 @@ class TranscodingTask:
         self._path_elements = None
         self._target = None
         self._target_dir = target_dir
-
-        if self.pattern is None:
-            raise ValueError(
-                'Can not use {cls} without setting pattern value first'.format(
-                    cls=self.__class__.__name__
-                )
-            )
 
         log.debug('Initialized {}'.format(self))
 
