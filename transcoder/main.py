@@ -49,6 +49,7 @@ def run(config_file):
     #    - Fill tags
     #    - Copy lyrics
     #    - Copy cover art
+    # TODO: Create some kind of transcoding log/report in the destination directory
 
     job = TranscodingJob(config_file)
     tasks = TranscodingQueue(job.inputs, job.output_pattern)
