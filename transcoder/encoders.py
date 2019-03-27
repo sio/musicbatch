@@ -56,7 +56,7 @@ class Transcoder:
 
 
     def __repr__(self):
-        return '<{cls}(quality={quality!r}})>'.format(
+        return '<{cls}(quality={quality!r})>'.format(
             cls = self.__class__.__name__,
             quality = self.quality,
         )
@@ -65,7 +65,7 @@ class Transcoder:
 
 class VorbisTranscoder(Transcoder):
     '''Transcoder for Ogg Vorbis target'''
-    valid_quality = re.compile('^q\s*([0-9]0?)$')
+    valid_quality = re.compile(r'^q\s*([0-9]0?)$')
 
 
     def configure(self, quality, *a, **ka):

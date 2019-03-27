@@ -14,9 +14,7 @@ from ruamel import yaml
 
 from transcoder import (
     DEFAULT_CONFIG,
-    KNOWN_EXTENSIONS,
     LOSSLESS_EXTENSIONS,
-    LOSSY_EXTENSIONS,
 )
 from transcoder.encoders import (
     VerbatimFileCopy,
@@ -29,7 +27,6 @@ from transcoder.progress import (
 )
 from transcoder.queue import (
     TranscodingQueue,
-    TranscodingTask,
     execute_in_threadqueue,
 )
 
