@@ -1,3 +1,8 @@
+'''
+Batch transcode music files according to the provided config
+'''
+
+
 LOSSY_EXTENSIONS = {'ogg', 'mp3', 'aac'}
 LOSSLESS_EXTENSIONS = {'flac', 'ape', 'wav', 'pcm', 'raw'}
 KNOWN_EXTENSIONS = LOSSY_EXTENSIONS | LOSSLESS_EXTENSIONS

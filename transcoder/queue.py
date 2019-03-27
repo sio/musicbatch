@@ -1,4 +1,7 @@
-# TODO: Write docstrings for modules
+'''
+Non-greedy queueing of transcoding tasks
+'''
+
 
 import os
 from queue import Queue
