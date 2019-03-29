@@ -43,11 +43,13 @@ class BaseLyricsFetcher(BaseDataFetcher):
             raise ValueError('invalid argument value: position={}'.format(position))
 
 
+
 class LyricsWikiFetcher(BaseLyricsFetcher):
     '''Fetch lyrics from Lyrics Wiki'''
 
     api = 'http://lyrics.wikia.com/api.php'
-    marker = re.compile(r'^.*<lyrics>(.*)</lyrics>.*$', re.DOTALL)
+    marker = re.compile(r'^.*<lyrics>(.*)</lyrics>.*$', re.DOTALL|re.IGNORECASE)
+    noise = re.compile(r"''+", re.DOTALL)
 
     def fetch(self, artist, title):
         api_response = self.get(self.api, params=dict(
@@ -59,13 +61,12 @@ class LyricsWikiFetcher(BaseLyricsFetcher):
         ))
 
         overview = etree.fromstring(api_response.content)
-        if not overview.xpath('page_id//text()'):
+        if not overview.xpath('page_id//text()') \
+        or int(overview.xpath('isOnTakedownList//text()')[0]):
             return None  # lyrics not found
 
         full_page_url = overview.xpath('url//text()')[0]
         html = self.parse_html(full_page_url, params=dict(action='edit'))
         wiki_text = html.xpath('//*[@id="wpTextbox1"]//text()')[0]
         lyrics = self.marker.sub(r'\1', wiki_text)
-        # TODO: handle inline html tags in lyrics
-        # TODO: drop "we are not licensed to display"
-        return lyrics
+        return self.noise.sub('', lyrics).strip()
