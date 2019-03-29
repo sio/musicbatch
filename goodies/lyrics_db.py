@@ -8,6 +8,7 @@ import logging
 from datetime import datetime
 from contextlib import contextmanager
 
+import mutagen
 from sqlalchemy import (
     create_engine,
     Column,
@@ -22,6 +23,8 @@ from sqlalchemy.orm import (
     sessionmaker,
 )
 
+from transcoder.util import find_music
+from transcoder.queue import execute_in_threadqueue
 from goodies.lyrics import (
     LyricsWikiFetcher,
     MusixMatchFetcher,
@@ -120,6 +123,22 @@ class LyricsStorage:
                 schedule.timestamp = datetime.utcnow()
             log.debug('Lyrics not found. Scheduled for later')
             return fetcher.NOT_FOUND
+
+
+    def build_library(self, *directories):
+        '''Build the library of lyrics for all songs in provided directories'''
+        def songs():
+            for filename in find_music(directories):
+                tags = mutagen.File(filename, easy=True).tags
+                artist = tags.get('artist')
+                title = tags.get('title')
+                if artist and title:
+                    yield artist, title
+        execute_in_threadqueue(
+            lambda args: self.get(*args),
+            songs(),
+            num_threads=os.cpu_count() * 3
+        )
 
 
     @contextmanager
