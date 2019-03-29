@@ -17,7 +17,7 @@ class BaseLyricsFetcher(BaseDataFetcher):
     url_pattern = NotImplemented
     _regex = {
         'the_start': re.compile(r'^\s*the\s+(.*)', re.IGNORECASE),
-        'the_end': re.compile(r'(.*)[,\s]\s*the\s*$', re.IGNORECASE),
+        'the_end': re.compile(r'(.*)(?:,\s*|[^,]\s+)the\s*$', re.IGNORECASE),
     }
 
 
