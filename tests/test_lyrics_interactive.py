@@ -32,7 +32,7 @@ def run_tests(fetcher_class, filename=None):
 
     for artist, title, explanation in TEST_SONGS:
         try:
-            lyrics = fetcher.fetch(artist, title)
+            lyrics = fetcher(artist, title)
         except Exception:
             lyrics = format_exc()
         show(

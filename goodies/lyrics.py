@@ -6,6 +6,7 @@ import re
 from urllib.parse import quote
 
 from lxml import etree
+from requests.exceptions import HTTPError
 
 from goodies.fetch import BaseDataFetcher
 
@@ -14,11 +15,40 @@ from goodies.fetch import BaseDataFetcher
 class BaseLyricsFetcher(BaseDataFetcher):
     '''Base class for all lyrics fetchers'''
 
-    url_pattern = NotImplemented
-    _regex = {
+    HOME = NotImplemented  # Home URL for the lyrics source
+    NOT_FOUND = None
+    regex = {
         'the_start': re.compile(r'^\s*the\s+(.*)', re.IGNORECASE),
         'the_end': re.compile(r'(.*)(?:,\s*|[^,]\s+)the\s*$', re.IGNORECASE),
+        'whitespace': re.compile(r'\s+', re.DOTALL),
+        'empty_line': re.compile(r'^\s+$', re.MULTILINE),
+        'many_linebreaks': re.compile(r'\n\n+'),
     }
+
+
+    def __repr__(self):
+        return '<{cls}({url})>'.format(
+            cls = self.__class__.__name__,
+            url = self.HOME,
+        )
+
+
+    @classmethod
+    def check(cls, lyrics):
+        '''Validate lyrics'''
+        if cls.regex['whitespace'].sub('', lyrics):
+            return cls.cleanup(lyrics)
+        else:
+            return cls.NOT_FOUND
+
+
+    @classmethod
+    def cleanup(cls, lyrics):
+        '''Clean up some formatting mishaps'''
+        regex = cls.regex
+        clean = regex['empty_line'].sub('', lyrics)
+        clean = regex['many_linebreaks'].sub('\n\n', clean)
+        return clean
 
 
     @classmethod
@@ -29,7 +59,7 @@ class BaseLyricsFetcher(BaseDataFetcher):
         If "the" is present, it will be moved either to the start or to the end
         of line according to the value of `position`
         '''
-        regex = cls._regex
+        regex = cls.regex
         if position == 'start':
             return regex['the_end'].sub(r'The \1', caption)
         elif position == 'end':
@@ -47,11 +77,12 @@ class BaseLyricsFetcher(BaseDataFetcher):
 class LyricsWikiFetcher(BaseLyricsFetcher):
     '''Fetch lyrics from Lyrics Wiki'''
 
+    HOME = 'http://lyrics.wikia.com'
     api = 'http://lyrics.wikia.com/api.php'
     marker = re.compile(r'^.*<lyrics>(.*)</lyrics>.*$', re.DOTALL|re.IGNORECASE)
     noise = re.compile(r"''+", re.DOTALL)
 
-    def fetch(self, artist, title):
+    def __call__(self, artist, title):
         api_response = self.get(self.api, params=dict(
             action = 'lyrics',
             func = 'getSong',
@@ -63,10 +94,35 @@ class LyricsWikiFetcher(BaseLyricsFetcher):
         overview = etree.fromstring(api_response.content)
         if not overview.xpath('page_id//text()') \
         or int(overview.xpath('isOnTakedownList//text()')[0]):
-            return None  # lyrics not found
+            return self.NOT_FOUND
 
         full_page_url = overview.xpath('url//text()')[0]
         html = self.parse_html(full_page_url, params=dict(action='edit'))
         wiki_text = html.xpath('//*[@id="wpTextbox1"]//text()')[0]
         lyrics = self.marker.sub(r'\1', wiki_text)
-        return self.noise.sub('', lyrics).strip()
+        lyrics = self.noise.sub('', lyrics).strip()
+        return self.check(lyrics)
+
+
+
+class MusixMatchFetcher(BaseLyricsFetcher):
+    '''Fetch lyrics form musixmatch.com'''
+
+    HOME = 'https://www.musixmatch.com'
+    url_pattern = 'https://www.musixmatch.com/lyrics/{artist}/{title}'
+    prepare = re.compile(r'[^\w\d]+', re.IGNORECASE)
+
+    def __call__(self, artist, title):
+        artist = self.fix_the(artist)
+        artist, title = map(
+            lambda x: self.prepare.sub('-', x),
+            (artist, title)
+        )
+        try:
+            html = self.parse_html(self.url_pattern.format(artist=artist, title=title))
+        except HTTPError:
+            return self.NOT_FOUND
+        paragraphs = html.xpath('//span[@class="lyrics__content__ok"]//text()') \
+                  or html.xpath('//span[@class="lyrics__content__warning"]//text()')
+        lyrics = '\n\n'.join(p.strip() for p in paragraphs)
+        return self.check(lyrics)
