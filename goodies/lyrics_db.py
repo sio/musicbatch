@@ -141,6 +141,18 @@ class LyricsStorage:
         )
 
 
+    def get_scheduled(self):
+        '''Try to retrieve all scheduled songs'''
+        with self.session() as session:
+            query = Query((Schedule.artist, Schedule.title))
+            songs = query.with_session(session)
+            execute_in_threadqueue(
+                lambda args: self.get(*args),
+                songs,
+                num_threads=os.cpu_count() * 3
+            )
+
+
     @contextmanager
     def session(self):
         '''Context manager for database sessions'''
