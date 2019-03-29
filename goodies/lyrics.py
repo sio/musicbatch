@@ -8,7 +8,7 @@ from urllib.parse import quote
 from lxml import etree
 from requests.exceptions import HTTPError
 
-from goodies.fetch import BaseDataFetcher
+from api.fetch import BaseDataFetcher
 
 
 

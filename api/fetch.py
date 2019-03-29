@@ -4,9 +4,12 @@ Interact with remote data sources
 
 
 import requests
-import lxml.html
+try:
+    import lxml.html
+except ImportError:
+    lxml = None
 
-from api import RateLimiter
+from api.limit import RateLimiter
 
 
 class FetcherMeta(type):
@@ -53,6 +56,8 @@ class BaseDataFetcher(metaclass=FetcherMeta):
 
 
     def parse_html(self, url, *a, **ka):
+        if lxml is None:
+            raise ImportError('No module named \'lxml\'')
         response = self.get(url, *a, **ka)
         html = lxml.html.fromstring(response.text)
         html.make_links_absolute(response.url)
