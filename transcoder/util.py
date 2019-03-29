@@ -6,6 +6,29 @@ Utilities for internal use
 import os
 import re
 
+import transcoder
+
+
+
+def find_music(directories):
+    '''Traverse file tree in alphabetical order (top down) and return music file paths'''
+    for directory in sorted(directories):
+        for root, dirs, files in os.walk(directory, followlinks=True, topdown=True):
+            dirs.sort()  # ensure alphabetical traversal
+            for filename in sorted(files):
+                if is_music(filename):
+                    yield os.path.join(root, filename)
+
+
+
+def is_music(filename):
+    '''Check if file is a music file'''
+    try:
+        extension = os.path.splitext(filename)[1][1:].lower()
+        return extension in transcoder.KNOWN_EXTENSIONS
+    except IndexError:
+        return False
+
 
 
 def mtime(filename):

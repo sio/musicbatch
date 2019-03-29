@@ -8,9 +8,9 @@ from queue import Queue
 from threading import Thread
 
 import mutagen
-import transcoder
 
 from hods import Metadata, TreeStructuredData
+from transcoder.util import find_music
 
 
 import logging
@@ -87,7 +87,7 @@ class TranscodingQueue:
         self.directories = directories
         self.pattern = pattern
         self.prev_task = None
-        self.files = self.traverse(directories)
+        self.files = find_music(directories)
         log.debug('Initialized {}'.format(self))
 
 
@@ -127,25 +127,6 @@ class TranscodingQueue:
 
     def __iter__(self):
         return self
-
-
-    def traverse(self, directories):
-        '''Traverse file tree in alphabetical order (top down)'''
-        for directory in sorted(directories):
-            for root, dirs, files in os.walk(directory, followlinks=True, topdown=True):
-                dirs.sort()  # ensure alphabetical traversal
-                for filename in sorted(files):
-                    if self.validate(filename):
-                        yield os.path.join(root, filename)
-
-
-    def validate(self, filename):
-        '''Check if file is eligible for transcoding'''
-        try:
-            extension = os.path.splitext(filename)[1][1:].lower()
-            return extension in transcoder.KNOWN_EXTENSIONS
-        except IndexError:
-            return False
 
 
 
