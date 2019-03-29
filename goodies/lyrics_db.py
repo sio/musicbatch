@@ -92,7 +92,7 @@ class LyricsStorage:
         with self.session() as session:
             # 1. Return from storage
             query = Query(Lyrics).filter(
-                (Lyrics.artist == artist),
+                (Lyrics.artist == artist),  # TODO: less strict filter
                 (Lyrics.title == title),
             )
             for lyrics in query.with_session(session):
