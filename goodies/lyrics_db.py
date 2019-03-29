@@ -92,8 +92,8 @@ class LyricsStorage:
         with self.session() as session:
             # 1. Return from storage
             query = Query(Lyrics).filter(
-                (Lyrics.artist == artist),  # TODO: less strict filter
-                (Lyrics.title == title),
+                (func.lower(Lyrics.artist) == func.lower(artist)),
+                (func.lower(Lyrics.title) == func.lower(title)),
             )
             for lyrics in query.with_session(session):
                 log.debug('Lyrics found in storage')
@@ -101,8 +101,8 @@ class LyricsStorage:
 
             # 2. Use fetchers to retrieve lyrics
             schedule_query = Query(Schedule).filter(
-                (Schedule.artist == artist),
-                (Schedule.title == title),
+                (func.lower(Schedule.artist) == func.lower(artist)),
+                (func.lower(Schedule.title) == func.lower(title)),
             )
             for fetcher in self.fetchers:
                 text = fetcher(artist, title)
