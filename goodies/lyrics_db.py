@@ -110,7 +110,7 @@ class LyricsStorage:
                     continue
                 lyrics = Lyrics(artist=artist, title=title, text=text, source=fetcher.HOME)
                 session.add(lyrics)
-                schedule_query.with_session(session).delete()
+                schedule_query.with_session(session).delete(synchronize_session=False)
                 log.debug('Lyrics fetched from {}'.format(fetcher.HOME))
                 return lyrics.text
 
@@ -133,7 +133,7 @@ class LyricsStorage:
                 artist = tags.get('artist')
                 title = tags.get('title')
                 if artist and title:
-                    yield artist, title
+                    yield artist[0], title[0]
         execute_in_threadqueue(
             lambda args: self.get(*args),
             songs(),
