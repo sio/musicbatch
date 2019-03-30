@@ -26,7 +26,9 @@ from sqlalchemy.orm import (
 from transcoder.util import find_music
 from transcoder.queue import execute_in_threadqueue
 from goodies.lyrics import (
+    LyricsModeFetcher,
     LyricsWikiFetcher,
+    MetroLyricsFetcher,
     MusixMatchFetcher,
 )
 
@@ -73,6 +75,8 @@ class LyricsStorage:
 
     fetchers = (
         LyricsWikiFetcher(),
+        MetroLyricsFetcher(),
+        LyricsModeFetcher(),
         MusixMatchFetcher(),
     )
 
