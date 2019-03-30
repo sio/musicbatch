@@ -126,3 +126,34 @@ class MusixMatchFetcher(BaseLyricsFetcher):
                   or html.xpath('//span[@class="lyrics__content__warning"]//text()')
         lyrics = '\n\n'.join(p.strip() for p in paragraphs)
         return self.check(lyrics)
+
+
+
+class MetroLyricsFetcher(BaseLyricsFetcher):
+
+    HOME = 'http://metrolyrics.com/'
+    url_pattern = 'http://www.metrolyrics.com/printlyric/{title}-lyrics-{artist}.html'
+    disallowed = re.compile(r'[^\w\d\s-]')
+    strike = re.compile(r'[\s-]+')
+    newlines = re.compile(r'\n+\s*\n*')
+
+
+    def clean_caption(self, caption):
+        caption = self.disallowed.sub('', caption.lower())
+        caption = self.strike.sub('-', caption)
+        return caption
+
+
+    def __call__(self, artist, title):
+        artist = self.fix_the(artist)
+        artist, title = map(
+            self.clean_caption,
+            (artist, title)
+        )
+        try:
+            html = self.parse_html(self.url_pattern.format(artist=artist, title=title))
+        except HTTPError:
+            return self.NOT_FOUND
+        paragraphs = html.xpath('//p[@class="verse"]')
+        lyrics = '\n\n'.join(p.text_content().strip() for p in paragraphs)
+        return self.check(lyrics)
