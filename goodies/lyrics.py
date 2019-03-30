@@ -135,7 +135,6 @@ class MetroLyricsFetcher(BaseLyricsFetcher):
     url_pattern = 'http://www.metrolyrics.com/printlyric/{title}-lyrics-{artist}.html'
     disallowed = re.compile(r'[^\w\d\s-]')
     strike = re.compile(r'[\s-]+')
-    newlines = re.compile(r'\n+\s*\n*')
 
 
     def clean_caption(self, caption):
@@ -156,4 +155,52 @@ class MetroLyricsFetcher(BaseLyricsFetcher):
             return self.NOT_FOUND
         paragraphs = html.xpath('//p[@class="verse"]')
         lyrics = '\n\n'.join(p.text_content().strip() for p in paragraphs)
+        return self.check(lyrics)
+
+
+
+class LyricsModeFetcher(BaseLyricsFetcher):
+
+    HOME = 'https://www.lyricsmode.com'
+    url_pattern = 'https://www.lyricsmode.com/lyrics/{char}/{artist}/{title}.html'
+    disallowed = re.compile(r'[^\w\d\s-]')
+    strike = re.compile(r'[\s-]+')
+
+
+    def clean_caption(self, caption):
+        caption = caption.strip()
+        caption = self.disallowed.sub('', caption.lower())
+        caption = self.strike.sub('_', caption)
+        return caption
+
+
+    def __call__(self, artist, title):
+        artist = self.fix_the(artist, position=None)
+        artist, title = map(
+            self.clean_caption,
+            (artist, title)
+        )
+        try:
+            int(artist[0])
+            char = '0-9'
+        except ValueError:
+            char = artist[0]
+        except IndexError:
+            char = ''
+        try:
+            html = self.parse_html(self.url_pattern.format(
+                artist=artist,
+                title=title,
+                char=char,
+            ))
+        except HTTPError:
+            return self.NOT_FOUND
+        paragraphs = html.xpath('//div[@id="lyrics_text"]')
+        if not paragraphs:
+            return self.NOT_FOUND
+        container = paragraphs[0]
+        for child in container:
+            if child.tag == 'div':
+                container.remove(child)
+        lyrics = container.text_content().strip()
         return self.check(lyrics)
