@@ -9,6 +9,7 @@ from lxml import etree
 from requests.exceptions import HTTPError
 
 from api.fetch import BaseDataFetcher
+from goodies.cyrillic import transliterate
 
 
 
@@ -18,11 +19,14 @@ class BaseLyricsFetcher(BaseDataFetcher):
     HOME = NotImplemented  # Home URL for the lyrics source
     NOT_FOUND = None
     regex = {
-        'the_start': re.compile(r'^\s*the\s+(.*)', re.IGNORECASE),
-        'the_end': re.compile(r'(.*)(?:,\s*|[^,]\s+)the\s*$', re.IGNORECASE),
-        'whitespace': re.compile(r'\s+', re.DOTALL),
         'empty_line': re.compile(r'^\s+$', re.MULTILINE),
+        'except-alphanum': re.compile(r'[^\w\d]'),
+        'except-alphanum-space-hyphen': re.compile(r'[^\w\d\s-]'),
+        'except-whitespace-hyphen': re.compile(r'[\s-]+'),
         'many_linebreaks': re.compile(r'\n\n+'),
+        'the_end': re.compile(r'(.*)(?:,\s*|[^,]\s+)the\s*$', re.IGNORECASE),
+        'the_start': re.compile(r'^\s*the\s+(.*)', re.IGNORECASE),
+        'whitespace': re.compile(r'\s+', re.DOTALL),
     }
 
 
@@ -133,8 +137,8 @@ class MetroLyricsFetcher(BaseLyricsFetcher):
 
     HOME = 'http://metrolyrics.com/'
     url_pattern = 'http://www.metrolyrics.com/printlyric/{title}-lyrics-{artist}.html'
-    disallowed = re.compile(r'[^\w\d\s-]')
-    strike = re.compile(r'[\s-]+')
+    disallowed = BaseLyricsFetcher.regex['except-alphanum-space-hyphen']
+    strike = BaseLyricsFetcher.regex['except-whitespace-hyphen']
 
 
     def clean_caption(self, caption):
@@ -163,8 +167,8 @@ class LyricsModeFetcher(BaseLyricsFetcher):
 
     HOME = 'https://www.lyricsmode.com'
     url_pattern = 'https://www.lyricsmode.com/lyrics/{char}/{artist}/{title}.html'
-    disallowed = re.compile(r'[^\w\d\s-]')
-    strike = re.compile(r'[\s-]+')
+    disallowed = BaseLyricsFetcher.regex['except-alphanum-space-hyphen']
+    strike = BaseLyricsFetcher.regex['except-whitespace-hyphen']
 
 
     def clean_caption(self, caption):
@@ -204,3 +208,68 @@ class LyricsModeFetcher(BaseLyricsFetcher):
                 container.remove(child)
         lyrics = container.text_content().strip()
         return self.check(lyrics)
+
+
+
+class LyricsWorldRuFetcher(BaseLyricsFetcher):
+    '''
+    Fetcher for russian songs. Rather slow, so we don't use it on latin track
+    names
+    '''
+
+    HOME = 'https://lyricsworld.ru'
+    artist_url = 'https://lyricsworld.ru/{artist}/P{num}.html'
+    disallowed = BaseLyricsFetcher.regex['except-alphanum-space-hyphen']
+    strike = BaseLyricsFetcher.regex['except-whitespace-hyphen']
+    cyrillic = re.compile(r'.*[а-я].*', re.IGNORECASE)
+
+
+    def clean_artist(self, artist):
+        artist = transliterate(artist)
+        artist = self.disallowed.sub('', artist.lower())
+        artist = self.strike.sub('-', artist)
+        return artist
+
+
+    def clean_title(self, title):
+        title = self.regex['except-alphanum'].sub('', title)
+        return title.lower().replace('ё', 'е')
+
+
+    def is_cyrillic(self, *texts):
+        return bool(self.cyrillic.match(''.join(texts)))
+
+
+    def __call__(self, artist, title):
+        if not self.is_cyrillic(artist, title):
+            return self.NOT_FOUND  # This fetcher is slow. Don't use it for non-cyrillic titles
+        artist = self.fix_the(artist, position=None)
+        artist = self.clean_artist(artist)
+        title = self.clean_title(title)
+
+        page_number = 1
+        while True:
+            try:
+                artist_page = self.parse_html(self.artist_url.format(
+                    artist=artist,
+                    num=page_number,
+                ))
+                page_number += 1
+            except HTTPError:
+                return self.NOT_FOUND
+            tracks = artist_page.xpath('//table[@class="tracklist"]//a')
+            song_url = None
+            for track in tracks:
+                if self.clean_title(track.text_content()) == title:
+                    song_url = track.get('href')
+                    break
+            if not song_url:
+                continue  # try next page
+            try:
+                song_page = self.parse_html(song_url)
+            except HTTPError:
+                return self.NOT_FOUND
+            lyrics = song_page.xpath('//p[@id="songLyricsDiv"]')
+            if lyrics:
+                return self.check(lyrics[0].text_content().strip())
+

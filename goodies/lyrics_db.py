@@ -29,6 +29,7 @@ from transcoder.queue import execute_in_threadqueue
 from goodies.lyrics import (
     LyricsModeFetcher,
     LyricsWikiFetcher,
+    LyricsWorldRuFetcher,
     MetroLyricsFetcher,
     MusixMatchFetcher,
 )
@@ -78,6 +79,7 @@ class LyricsStorage:
         LyricsWikiFetcher(),
         MetroLyricsFetcher(),
         LyricsModeFetcher(),
+        LyricsWorldRuFetcher(),
         MusixMatchFetcher(),
     )
 

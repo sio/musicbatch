@@ -18,6 +18,7 @@ TEST_SONGS = (
     ('Hemanta Mukherjee', 'Tumi Robe Nirobe', 'bengali lyrics, unmodified'),
     ('Hemanta Mukherjee & Lata Mangeskar', 'Tumi Robe Nirobe', 'bengali lyrics, unmodified'),
     ('Пилот', 'Шнурок', 'cyrillic lyrics'),
+    ('Flёur', 'Всё вышло из-под контроля', 'cyrillic lyrics'),
 )
 
 
