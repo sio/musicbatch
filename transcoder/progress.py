@@ -24,6 +24,14 @@ class ThreadSafeCounter:
             return self.value
 
 
+    def __str__(self):
+        return str(self.value)
+
+
+    def __format__(self, *a, **ka):
+        return str(self).__format__(*a, **ka)
+
+
 
 class TranscodingStats:
     '''

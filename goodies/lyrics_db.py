@@ -24,6 +24,7 @@ from sqlalchemy.orm import (
 )
 
 from transcoder.util import find_music
+from transcoder.progress import ThreadSafeCounter
 from transcoder.queue import execute_in_threadqueue
 from goodies.lyrics import (
     LyricsModeFetcher,
@@ -89,6 +90,7 @@ class LyricsStorage:
         self.db = create_engine(url)
         Base.metadata.create_all(self.db)
         self.sessionmaker = sessionmaker(bind=self.db)
+        self.stats = StorageStats()
 
 
     def get(self, artist, title):
@@ -101,6 +103,7 @@ class LyricsStorage:
             )
             for lyrics in query.with_session(session):
                 log.debug('Lyrics found in storage')
+                self.stats.cached.increment()
                 return lyrics.text
 
             # 2. Use fetchers to retrieve lyrics
@@ -116,6 +119,7 @@ class LyricsStorage:
                 session.add(lyrics)
                 schedule_query.with_session(session).delete(synchronize_session=False)
                 log.debug('Lyrics fetched from {}'.format(fetcher.HOME))
+                self.stats.fetched.increment()
                 return lyrics.text
 
             # 3. Record failure
@@ -126,6 +130,7 @@ class LyricsStorage:
             else:
                 schedule.timestamp = datetime.utcnow()
             log.debug('Lyrics not found. Scheduled for later')
+            self.stats.missing.increment()
             return fetcher.NOT_FOUND
 
 
@@ -169,3 +174,31 @@ class LyricsStorage:
             raise
         finally:
             short_session.close()
+
+
+
+class StorageStats:
+    '''Statistics of the current LyricsStorage session'''
+
+
+    def __init__(self):
+        self.reset()
+
+
+    def reset(self):
+        self.cached = ThreadSafeCounter()
+        self.fetched = ThreadSafeCounter()
+        self.missing = ThreadSafeCounter()
+
+
+    def __str__(self):
+        template = '{new} lyrics fetched, {missing} not found, {cached} from cache'
+        return template.format(
+            new = self.fetched,
+            missing = self.missing,
+            cached = self.cached,
+        )
+
+
+    def __format__(self, *a, **ka):
+        return str(self).__format__(*a, **ka)
