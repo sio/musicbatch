@@ -6,6 +6,7 @@ import re
 from urllib.parse import quote
 
 from lxml import etree
+from lxml.html import HtmlComment
 
 from api.fetch import BaseDataFetcher, DataFetcherError
 from goodies.cyrillic import transliterate
@@ -274,3 +275,39 @@ class LyricsWorldRuFetcher(BaseLyricsFetcher):
             if lyrics:
                 return self.check(lyrics[0].text_content().strip())
 
+
+
+class AzLyricsFetcher(BaseLyricsFetcher):
+
+    HOME = 'https://www.azlyrics.com/'
+    url_pattern = 'https://www.azlyrics.com/lyrics/{artist}/{title}.html'
+    disallowed = BaseLyricsFetcher.regex['except-alphanum']
+    marker = 'Sorry about that.'
+
+
+    def clean_caption(self, caption):
+        caption = self.disallowed.sub('', caption.lower())
+        return caption
+
+
+    def __call__(self, artist, title):
+        artist = self.fix_the(artist, position=None)
+        artist, title = map(
+            self.clean_caption,
+            (artist, title)
+        )
+        try:
+            html = self.parse_html(self.url_pattern.format(artist=artist, title=title))
+        except DataFetcherError:
+            return self.NOT_FOUND
+        comments = (e for e in html.iter() if isinstance(e, HtmlComment))
+        for comment in comments:
+            if self.marker in comment.text:
+                lyrics = comment.getparent()
+                break
+        else:
+            return self.NOT_FOUND
+        for element in lyrics:
+            if element.tag == 'div':
+                lyrics.remove(element)
+        return self.check(lyrics.text_content().strip())

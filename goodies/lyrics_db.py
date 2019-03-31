@@ -27,6 +27,7 @@ from transcoder.util import find_music
 from transcoder.progress import ThreadSafeCounter
 from transcoder.queue import execute_in_threadqueue
 from goodies.lyrics import (
+    AzLyricsFetcher,
     LyricsModeFetcher,
     LyricsWikiFetcher,
     LyricsWorldRuFetcher,
@@ -80,6 +81,7 @@ class LyricsStorage:
         MetroLyricsFetcher(),
         LyricsModeFetcher(),
         LyricsWorldRuFetcher(),
+        AzLyricsFetcher(),
         MusixMatchFetcher(),
     )
 
