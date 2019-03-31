@@ -14,3 +14,4 @@ output:
 extras:
   lyrics: yes
   cover: 96  # pixels
+  # TODO: support blacklist / whitelist for targets

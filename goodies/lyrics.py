@@ -311,3 +311,5 @@ class AzLyricsFetcher(BaseLyricsFetcher):
             if element.tag == 'div':
                 lyrics.remove(element)
         return self.check(lyrics.text_content().strip())
+
+# TODO: new source: songtexte.com (Fleur songs with english titles)

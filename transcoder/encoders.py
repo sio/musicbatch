@@ -122,6 +122,7 @@ class SymlinkCreator(VerbatimFileCopy):
     This is useful for organizing a nice file layout from messy storage
     (e.g. torrents directory)
     '''
+    # TODO: For some reason this "transcoder" updates mtimes of original files (needs to be fixed)
 
     def __call__(self, input_filename, output_filename):
         extension = os.path.splitext(input_filename)[1].lower()

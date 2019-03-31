@@ -15,7 +15,7 @@ DEFAULT_CONFIG = {
     'name': 'Transcoding Job',
     'pattern': '{artist} - {year} - {album}/{number} {title}',
     'format': 'vorbis',
-    'quality': 'q5',
+    'quality': 'q5',  # TODO: use None a default quality
     'lossy_source': 'copy',
     'cover': 250,
 }
