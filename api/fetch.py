@@ -4,6 +4,7 @@ Interact with remote data sources
 
 
 import requests
+from requests.exceptions import HTTPError, ConnectionError
 try:
     import lxml.html
 except ImportError:
@@ -47,6 +48,13 @@ class BaseDataFetcher(metaclass=FetcherMeta):
 
 
     def get(self, url, *a, **ka):
+        try:
+            return self._get(url, *a, **ka)
+        except (HTTPError, ConnectionError) as exc:
+            raise DataFetcherError(exc.__class__.__name__)
+
+
+    def _get(self, url, *a, **ka):
         with self.rate_limit:
             response = self._requests.get(url, *a, **ka)
             response.raise_for_status()  # fail early
@@ -62,3 +70,8 @@ class BaseDataFetcher(metaclass=FetcherMeta):
         html = lxml.html.fromstring(response.content)
         html.make_links_absolute(response.url)
         return html
+
+
+
+class DataFetcherError(HTTPError, ConnectionError):
+    '''Raised when the data can not be fetched'''

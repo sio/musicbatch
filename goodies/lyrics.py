@@ -6,9 +6,8 @@ import re
 from urllib.parse import quote
 
 from lxml import etree
-from requests.exceptions import HTTPError
 
-from api.fetch import BaseDataFetcher
+from api.fetch import BaseDataFetcher, DataFetcherError
 from goodies.cyrillic import transliterate
 
 
@@ -124,7 +123,7 @@ class MusixMatchFetcher(BaseLyricsFetcher):
         )
         try:
             html = self.parse_html(self.url_pattern.format(artist=artist, title=title))
-        except HTTPError:
+        except DataFetcherError:
             return self.NOT_FOUND
         paragraphs = html.xpath('//span[@class="lyrics__content__ok"]//text()') \
                   or html.xpath('//span[@class="lyrics__content__warning"]//text()')
@@ -155,7 +154,7 @@ class MetroLyricsFetcher(BaseLyricsFetcher):
         )
         try:
             html = self.parse_html(self.url_pattern.format(artist=artist, title=title))
-        except HTTPError:
+        except DataFetcherError:
             return self.NOT_FOUND
         paragraphs = html.xpath('//p[@class="verse"]')
         lyrics = '\n\n'.join(p.text_content().strip() for p in paragraphs)
@@ -197,7 +196,7 @@ class LyricsModeFetcher(BaseLyricsFetcher):
                 title=title,
                 char=char,
             ))
-        except HTTPError:
+        except DataFetcherError:
             return self.NOT_FOUND
         paragraphs = html.xpath('//div[@id="lyrics_text"]')
         if not paragraphs:
@@ -255,7 +254,7 @@ class LyricsWorldRuFetcher(BaseLyricsFetcher):
                     num=page_number,
                 ))
                 page_number += 1
-            except HTTPError:
+            except DataFetcherError:
                 return self.NOT_FOUND
             tracks = artist_page.xpath('//table[@class="tracklist"]//a')
             song_url = None
@@ -267,7 +266,7 @@ class LyricsWorldRuFetcher(BaseLyricsFetcher):
                 continue  # try next page
             try:
                 song_page = self.parse_html(song_url)
-            except HTTPError:
+            except DataFetcherError:
                 return self.NOT_FOUND
             lyrics = song_page.xpath('//p[@id="songLyricsDiv"]')
             if lyrics:
