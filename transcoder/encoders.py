@@ -3,7 +3,7 @@ Workers for transcoding music into different target formats
 '''
 
 
-import os.path
+import os
 import re
 from shutil import copyfile
 
@@ -111,3 +111,27 @@ class VerbatimFileCopy:
         return '<{cls}()>'.format(
             cls = self.__class__.__name__,
         )
+
+
+
+class SymlinkCreator(VerbatimFileCopy):
+    '''
+    Transcoder-like object that does no transcoding but instead creates
+    symlinks to original music files
+
+    This is useful for organizing a nice file layout from messy storage
+    (e.g. torrents directory)
+    '''
+
+    def __call__(self, input_filename, output_filename):
+        extension = os.path.splitext(input_filename)[1].lower()
+        if not output_filename.lower().endswith(extension):
+            output_filename += extension
+        output_filename = safe_filepath(output_filename)
+        make_target_directory(output_filename)
+        skip = skip_action(input_filename, output_filename)
+        if not skip:
+            if os.path.exists(output_filename):
+                os.remove(output_filename)
+            os.symlink(input_filename, output_filename)
+        return output_filename, skip

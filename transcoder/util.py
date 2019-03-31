@@ -49,7 +49,7 @@ def skip_action(input_filename, output_filename):
         mtime,
         (input_filename, output_filename)
     )
-    return input_mtime < output_mtime
+    return input_mtime <= output_mtime
 
 
 

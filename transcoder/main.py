@@ -17,6 +17,7 @@ from transcoder import (
     LOSSLESS_EXTENSIONS,
 )
 from transcoder.encoders import (
+    SymlinkCreator,
     VerbatimFileCopy,
     VorbisTranscoder,
 )
@@ -75,6 +76,7 @@ class TranscodingJob:
     ENCODERS = {
         None: VorbisTranscoder,
         'vorbis': VorbisTranscoder,
+        'symlink': SymlinkCreator,
     }
 
 
@@ -103,7 +105,8 @@ class TranscodingJob:
         self.transcoder = self.ENCODERS.get(encoder)(quality)
 
         lossy_action = output.get('lossy_source', DEFAULT_CONFIG['lossy_source'])
-        if lossy_action == 'allow_bad_transcodes':
+        if lossy_action == 'allow_bad_transcodes'\
+        or encoder == 'symlink':
             self.lossy_action = self.transcoder
         elif lossy_action == 'copy':
             self.lossy_action = VerbatimFileCopy()
