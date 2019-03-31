@@ -112,6 +112,7 @@ class MusixMatchFetcher(BaseLyricsFetcher):
     '''Fetch lyrics form musixmatch.com'''
 
     HOME = 'https://www.musixmatch.com'
+    RATELIMIT_CALLS = 10  # more gentle than default
     url_pattern = 'https://www.musixmatch.com/lyrics/{artist}/{title}'
     prepare = re.compile(r'[^\w\d]+', re.IGNORECASE)
 
@@ -165,6 +166,7 @@ class MetroLyricsFetcher(BaseLyricsFetcher):
 class LyricsModeFetcher(BaseLyricsFetcher):
 
     HOME = 'https://www.lyricsmode.com'
+    RATELIMIT_CALLS = 10  # more gentle than default
     url_pattern = 'https://www.lyricsmode.com/lyrics/{char}/{artist}/{title}.html'
     disallowed = BaseLyricsFetcher.regex['except-alphanum-space-hyphen']
     strike = BaseLyricsFetcher.regex['except-whitespace-hyphen']
