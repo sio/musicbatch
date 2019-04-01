@@ -1,4 +1,5 @@
 '''Logging setup'''
+# TODO: deduplicate logging setup. lyrics/logging.py seems to be better written
 
 
 import logging
