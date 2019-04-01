@@ -7,6 +7,7 @@ import os
 import time
 import sys
 from contextlib import contextmanager
+from subprocess import Popen, DEVNULL
 from threading import Thread
 
 import mutagen
@@ -66,6 +67,11 @@ def run(config_file):
 def restore_stdin():
     stdin, stdout, stderr = sys.stdin, sys.stdout, sys.stderr
     yield
+    try:
+        # Restore standard input in terminal (pydub's subprocesses mess with it)
+        Popen(['stty', 'echo'], stdout=DEVNULL, stderr=DEVNULL)
+    except Exception:
+        pass
     sys.stdin, sys.stdout, sys.stderr = stdin, stdout, stderr
 
 
