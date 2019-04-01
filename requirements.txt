@@ -8,7 +8,6 @@ https://github.com/sio/hods/archive/master.zip
 # Goodies
 requests
 lxml
-cssselect
 sqlalchemy
 
 # Development
