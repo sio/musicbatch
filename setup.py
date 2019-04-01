@@ -23,7 +23,7 @@ setup(
         'pillow',
         'pydub',
         'ruamel.yaml',
-        'https://github.com/sio/hods/archive/master.zip#egg=hods',
+        'hods',
         # Lyrics + Scrapehelper
         'requests',
         'lxml',
