@@ -17,7 +17,20 @@ from transcoder.util import (
 
 
 
-class Transcoder:
+class SpecialValue:
+    '''Dummy objects that are always compared via "is-a" instead of "equals"'''
+    __slots__ = ()
+
+
+
+class TranscoderConstants:
+    '''Some constants for all transcoder-like objects'''
+    STATUS_OK = SpecialValue()
+    STATUS_SKIP = SpecialValue()
+    STATUS_SKIPTAGS = SpecialValue()
+
+
+class Transcoder(TranscoderConstants):
     '''Generic base class for transcoders'''
 
 
@@ -45,14 +58,16 @@ class Transcoder:
 
         output_filename = safe_filepath(output_filename)
         make_target_directory(output_filename)
-        skip = skip_action(input_filename, output_filename)
-        if not skip:
+        if not skip_action(input_filename, output_filename):
             # ffmpeg format names usually match extension
             input_format = os.path.splitext(input_filename)[1][1:].lower()
             AudioSegment \
                 .from_file(input_filename, input_format) \
                 .export(output_filename, **self.export_params)
-        return output_filename, skip
+            status = self.STATUS_OK
+        else:
+            status = self.STATUS_SKIP
+        return output_filename, status
 
 
     def __repr__(self):
@@ -84,7 +99,7 @@ class VorbisTranscoder(Transcoder):
 
 
 
-class VerbatimFileCopy:
+class VerbatimFileCopy(TranscoderConstants):
     '''
     Transcoder-like object that does no transcoding but instead just copies the
     source files.
@@ -101,10 +116,12 @@ class VerbatimFileCopy:
             output_filename += extension
         output_filename = safe_filepath(output_filename)
         make_target_directory(output_filename)
-        skip = skip_action(input_filename, output_filename)
-        if not skip:
+        if not skip_action(input_filename, output_filename):
             copyfile(input_filename, output_filename)
-        return output_filename, skip
+            status = self.STATUS_SKIPTAGS  # no need to copy tags
+        else:
+            status = self.STATUS_SKIP
+        return output_filename, status
 
 
     def __repr__(self):
@@ -122,7 +139,6 @@ class SymlinkCreator(VerbatimFileCopy):
     This is useful for organizing a nice file layout from messy storage
     (e.g. torrents directory)
     '''
-    # TODO: For some reason this "transcoder" updates mtimes of original files (needs to be fixed)
 
     def __call__(self, input_filename, output_filename):
         extension = os.path.splitext(input_filename)[1].lower()
@@ -130,9 +146,11 @@ class SymlinkCreator(VerbatimFileCopy):
             output_filename += extension
         output_filename = safe_filepath(output_filename)
         make_target_directory(output_filename)
-        skip = skip_action(input_filename, output_filename)
-        if not skip:
+        if not skip_action(input_filename, output_filename):
             if os.path.exists(output_filename):
                 os.remove(output_filename)
             os.symlink(input_filename, output_filename)
-        return output_filename, skip
+            status = self.STATUS_SKIPTAGS
+        else:
+            status = self.STATUS_SKIP
+        return output_filename, status

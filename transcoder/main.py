@@ -139,7 +139,7 @@ class TranscodingJob:
             self._timestamp = int(time.time())
 
         # Step 1: Transcode
-        task.result, task.skipped = worker(
+        task.result, task.status = worker(
             task.source,
             os.path.join(self.output_dir, task.target)
         )
@@ -152,7 +152,7 @@ class TranscodingJob:
             ).start()
 
         # Handle skipped transcodes
-        if task.skipped:
+        if task.status is worker.STATUS_SKIP:
             if os.path.getmtime(task.result) > self.timestamp:
                 raise RuntimeError('Target path collision for {}'.format(task.result))
             self.stats.record_skip()
@@ -160,9 +160,10 @@ class TranscodingJob:
             return
 
         # Step 2: Copy music tags
-        result = mutagen.File(task.result, easy=True)
-        result.tags.update(task.tags)  # TODO: drop blacklisted tags (embedded image)
-        result.save()
+        if not task.status is worker.STATUS_SKIPTAGS:
+            result = mutagen.File(task.result, easy=True)
+            result.tags.update(task.tags)  # TODO: drop blacklisted tags (embedded image)
+            result.save()
 
         self.stats.record_done()
         log.debug('Finished {task}'.format(task=task))

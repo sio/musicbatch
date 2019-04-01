@@ -141,7 +141,7 @@ class TranscodingTask:
         self.number = seq_number
 
         self.result = None  # store full path to the result when task is done
-        self.skipped = None # indicate skipped task
+        self.status = None  # indicate skipped task
 
         self._metadata = None
         self._tags = None
