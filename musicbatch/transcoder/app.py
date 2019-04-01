@@ -6,6 +6,7 @@ CLI application for transcoding music files
 import os
 import time
 import sys
+from argparse import ArgumentParser
 from contextlib import contextmanager
 from subprocess import Popen, DEVNULL
 from threading import Thread
@@ -39,7 +40,7 @@ log = logging.getLogger(__name__)
 
 
 
-def run(config_file):
+def run(*a, **ka):
     '''
     CLI entry point
     '''
@@ -53,13 +54,24 @@ def run(config_file):
     #    - Copy cover art
     # TODO: Create some kind of transcoding log/report in the destination directory
 
-    job = TranscodingJob(config_file)
+    args = parse_args(*a, **ka)
+    job = TranscodingJob(args.config)
     tasks = TranscodingQueue(job.inputs, job.output_pattern)
 
     with restore_stdin():
         show_progress(job)   # start progress report thread
         execute_in_threadqueue(job.transcode, tasks, buffer_size=20)
         job.finished = True  # terminate progress report thread
+
+
+
+def parse_args(*a, **ka):
+    parser = ArgumentParser(description='Batch transcode music files according to the provided config')
+    parser.add_argument(
+        'config',
+        help='Path to YAML description of the transcoding job',
+    )
+    return parser.parse_args(*a, **ka)
 
 
 
