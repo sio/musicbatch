@@ -20,7 +20,7 @@ log = logging.getLogger('musicbatch.lyrics.app')
 def run(*a, **ka):
     args = parse_args(*a, **ka)
     path = os.path.expandvars(args.database)
-    db = LyricsStorage(path)
+    db = LyricsStorage(path)  # TODO: do not create database if args are invalid
     ui = UIThread(db)
     if args.retry_scheduled:
         with ui:
