@@ -324,13 +324,16 @@ class SongTexteFetcher(BaseLyricsFetcher):
     def __call__(self, artist, title):
         artist = self.fix_the(artist)
         artist_simplified, title_simplified = map(self.simplify, (artist, title))
-        search_page = self.parse_html(
-            self.search_url,
-            params={
-                'c': 'songs',
-                'q': ' '.join((artist, title)),
-            }
-        )
+        try:
+            search_page = self.parse_html(
+                self.search_url,
+                params={
+                    'c': 'songs',
+                    'q': ' '.join((artist, title)),
+                }
+            )
+        except DataFetcherError:
+            return self.NOT_FOUND
         songs = search_page.xpath('//div[@class="songResultTable"]//div')
         for song in songs:
             artist_cell = song.xpath('(.//span[@class="artist"])[1]')
