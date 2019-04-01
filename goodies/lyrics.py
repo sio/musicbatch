@@ -6,7 +6,7 @@ import re
 from urllib.parse import quote
 
 from lxml import etree
-from lxml.html import HtmlComment
+from lxml.html import HtmlComment, iterlinks
 
 from api.fetch import BaseDataFetcher, DataFetcherError
 from goodies.cyrillic import transliterate
@@ -233,8 +233,9 @@ class LyricsWorldRuFetcher(BaseLyricsFetcher):
         return artist
 
 
-    def clean_title(self, title):
-        title = self.regex['except-alphanum'].sub('', title)
+    @classmethod
+    def clean_title(cls, title):
+        title = cls.regex['except-alphanum'].sub('', title)
         return title.lower().replace('ё', 'е')
 
 
@@ -312,4 +313,48 @@ class AzLyricsFetcher(BaseLyricsFetcher):
                 lyrics.remove(element)
         return self.check(lyrics.text_content().strip())
 
-# TODO: new source: songtexte.com (Fleur songs with english titles)
+
+
+class SongTexteFetcher(BaseLyricsFetcher):
+
+    HOME = 'https://www.songtexte.com'
+    search_url = 'https://www.songtexte.com/search'
+    simplify = LyricsWorldRuFetcher.clean_title
+
+    def __call__(self, artist, title):
+        artist = self.fix_the(artist)
+        artist_simplified, title_simplified = map(self.simplify, (artist, title))
+        search_page = self.parse_html(
+            self.search_url,
+            params={
+                'c': 'songs',
+                'q': ' '.join((artist, title)),
+            }
+        )
+        songs = search_page.xpath('//div[@class="songResultTable"]//div')
+        for song in songs:
+            artist_cell = song.xpath('(.//span[@class="artist"])[1]')
+            title_cell = song.xpath('(.//span[@class="song"])[1]')
+            if artist_cell and title_cell \
+            and self.simplify(artist_cell[0].text_content().lower().lstrip('von\n')) == artist_simplified \
+            and self.simplify(title_cell[0].text_content())  == title_simplified:
+                for _, attr, link, _ in iterlinks(title_cell[0]):
+                    if attr == 'href':
+                        break_marker = True
+                        break
+                if break_marker: break
+        else:
+            return self.NOT_FOUND
+        try:
+            song_page = self.parse_html(link)
+        except DataFetcherError:
+            return self.NOT_FOUND
+        lyrics = song_page.xpath('(.//div[@id="lyrics"])[1]')
+        if not lyrics:
+            return self.NOT_FOUND
+        else:
+            lyrics = lyrics[0]
+        for element in lyrics:
+            if element.tag == 'div':
+                lyrics.remove(element)
+        return self.check(lyrics.text_content().strip())

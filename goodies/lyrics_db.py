@@ -33,6 +33,7 @@ from goodies.lyrics import (
     LyricsWorldRuFetcher,
     MetroLyricsFetcher,
     MusixMatchFetcher,
+    SongTexteFetcher,
 )
 
 
@@ -80,6 +81,7 @@ class LyricsStorage:
         LyricsWikiFetcher(),
         MetroLyricsFetcher(),
         LyricsModeFetcher(),
+        SongTexteFetcher(),
         LyricsWorldRuFetcher(),
         AzLyricsFetcher(),
         MusixMatchFetcher(),
