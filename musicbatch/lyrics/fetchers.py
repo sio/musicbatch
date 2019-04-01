@@ -8,8 +8,8 @@ from urllib.parse import quote
 from lxml import etree
 from lxml.html import HtmlComment, iterlinks
 
-from api.fetch import BaseDataFetcher, DataFetcherError
-from goodies.cyrillic import transliterate
+from scrapehelper.fetch import BaseDataFetcher, DataFetcherError
+from musicbatch.lyrics.cyrillic import transliterate
 
 
 

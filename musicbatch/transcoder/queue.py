@@ -10,7 +10,7 @@ from threading import Thread
 import mutagen
 
 from hods import Metadata, TreeStructuredData
-from transcoder.util import find_music
+from musicbatch.transcoder.util import find_music
 
 
 import logging

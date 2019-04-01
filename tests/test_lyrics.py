@@ -5,7 +5,7 @@ Unit tests for lyrics fetchers
 
 from unittest import TestCase
 
-from goodies.lyrics import BaseLyricsFetcher
+from musicbatch.lyrics.fetchers import BaseLyricsFetcher
 
 
 class HelperFunctions(TestCase):

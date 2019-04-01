@@ -8,12 +8,12 @@ from argparse import ArgumentParser
 from threading import Thread
 from time import sleep
 
-from transcoder.progress import DotTicker
-from goodies.lyrics_db import LyricsStorage
+from musicbatch.transcoder.progress import DotTicker
+from musicbatch.lyrics.db import LyricsStorage
 
 
 
-log = logging.getLogger('goodies.lyrics_db')
+log = logging.getLogger('musicbatch.lyrics.app')
 
 
 

@@ -6,7 +6,7 @@ Handle lyrics associated with the transcoding task
 import os.path
 from shutil import copyfile
 
-from transcoder.util import safe_filepath
+from musicbatch.transcoder.util import safe_filepath
 
 
 

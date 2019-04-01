@@ -6,7 +6,7 @@ Utilities for internal use
 import os
 import re
 
-import transcoder
+from musicbatch import transcoder
 
 
 

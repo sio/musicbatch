@@ -10,7 +10,7 @@ try:
 except ImportError:
     lxml = None
 
-from api.limit import RateLimiter
+from scrapehelper.limit import RateLimiter
 
 
 class FetcherMeta(type):

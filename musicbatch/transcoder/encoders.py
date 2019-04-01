@@ -9,7 +9,7 @@ from shutil import copyfile
 
 from pydub import AudioSegment
 
-from transcoder.util import (
+from musicbatch.transcoder.util import (
     make_target_directory,
     safe_filepath,
     skip_action,

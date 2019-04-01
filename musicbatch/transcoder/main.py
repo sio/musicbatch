@@ -13,21 +13,21 @@ from threading import Thread
 import mutagen
 from ruamel import yaml
 
-from transcoder import (
+from musicbatch.transcoder import (
     DEFAULT_CONFIG,
     LOSSLESS_EXTENSIONS,
 )
-from transcoder.encoders import (
+from musicbatch.transcoder.encoders import (
     SymlinkCreator,
     VerbatimFileCopy,
     VorbisTranscoder,
 )
-from transcoder.cover import copy_coverart
-from transcoder.progress import (
+from musicbatch.transcoder.cover import copy_coverart
+from musicbatch.transcoder.progress import (
     TranscodingStats,
     show_progress,
 )
-from transcoder.queue import (
+from musicbatch.transcoder.queue import (
     TranscodingQueue,
     execute_in_threadqueue,
 )

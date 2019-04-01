@@ -8,7 +8,7 @@ import re
 
 from PIL import Image
 
-from transcoder.util import make_target_directory, skip_action
+from musicbatch.transcoder.util import make_target_directory, skip_action
 
 
 

@@ -23,10 +23,10 @@ from sqlalchemy.orm import (
     sessionmaker,
 )
 
-from transcoder.util import find_music
-from transcoder.progress import ThreadSafeCounter
-from transcoder.queue import execute_in_threadqueue
-from goodies.lyrics import (
+from musicbatch.transcoder.util import find_music
+from musicbatch.transcoder.progress import ThreadSafeCounter
+from musicbatch.transcoder.queue import execute_in_threadqueue
+from musicbatch.lyrics.fetchers import (
     AzLyricsFetcher,
     LyricsModeFetcher,
     LyricsWikiFetcher,

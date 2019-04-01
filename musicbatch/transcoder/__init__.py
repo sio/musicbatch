@@ -3,7 +3,7 @@ Batch transcode music files according to the provided config
 '''
 
 
-from transcoder.logging import log  # Initialize logger
+from musicbatch.transcoder.logging import log  # Initialize logger
 
 
 LOSSY_EXTENSIONS = {'ogg', 'mp3', 'aac'}
