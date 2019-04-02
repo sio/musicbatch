@@ -140,6 +140,8 @@ class SymlinkCreator(VerbatimFileCopy):
     (e.g. torrents directory)
     '''
 
+    # TODO: create symlink to metadata file/directory
+
     def __call__(self, input_filename, output_filename):
         extension = os.path.splitext(input_filename)[1].lower()
         if not output_filename.lower().endswith(extension):
