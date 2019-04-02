@@ -81,7 +81,7 @@ class BaseLyricsFetcher(BaseDataFetcher):
 class LyricsWikiFetcher(BaseLyricsFetcher):
     '''Fetch lyrics from Lyrics Wiki'''
 
-    HOME = 'http://lyrics.wikia.com'
+    HOME = 'http://lyrics.wikia.com'  # TODO: check status of the move to *.fandom.com domain
     api = 'http://lyrics.wikia.com/api.php'
     marker = re.compile(r'^.*<lyrics>(.*)</lyrics>.*$', re.DOTALL|re.IGNORECASE)
     noise = re.compile(r"''+", re.DOTALL)
