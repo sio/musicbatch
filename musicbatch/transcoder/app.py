@@ -8,6 +8,7 @@ import time
 import sys
 from argparse import ArgumentParser
 from contextlib import contextmanager
+from datetime import datetime
 from subprocess import Popen, DEVNULL
 from threading import Thread
 
@@ -52,7 +53,6 @@ def run(*a, **ka):
     #    - Fill tags
     #    - Copy lyrics
     #    - Copy cover art
-    # TODO: Create some kind of transcoding log/report in the destination directory
 
     args = parse_args(*a, **ka)
     job = TranscodingJob(args.config)
@@ -62,6 +62,7 @@ def run(*a, **ka):
         show_progress(job)   # start progress report thread
         execute_in_threadqueue(job.transcode, tasks, buffer_size=20)
         job.finished = True  # terminate progress report thread
+        job.write_report()
 
 
 
@@ -194,3 +195,13 @@ class TranscodingJob:
         (in Unix time format)
         '''
         return self._timestamp
+
+
+    def write_report(self):
+        '''Keep a journal of transcoder runs'''
+        log_entry = '{time}Z: {stats}\n'.format(
+            time = datetime.utcnow().replace(microsecond=0),
+            stats = self.stats.show().strip(),
+        )
+        with open(os.path.join(self.output_dir, 'transcoding.log'), 'a') as logfile:
+            logfile.write(log_entry)
