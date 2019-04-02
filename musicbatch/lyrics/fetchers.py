@@ -316,11 +316,11 @@ class AzLyricsFetcher(BaseLyricsFetcher):
 
 
 class SongTexteFetcher(BaseLyricsFetcher):
-    # TODO: filter out "Leider kein Songtext vorhanden."
 
     HOME = 'https://www.songtexte.com'
     search_url = 'https://www.songtexte.com/search'
     simplify = LyricsWorldRuFetcher.clean_title
+    bad = "Leider kein Songtext vorhanden".lower()
 
     def __call__(self, artist, title):
         artist = self.fix_the(artist)
@@ -358,6 +358,8 @@ class SongTexteFetcher(BaseLyricsFetcher):
             return self.NOT_FOUND
         else:
             lyrics = lyrics[0]
+        if self.bad in lyrics.text_content().lower():
+            return self.NOT_FOUND
         for element in lyrics:
             if element.tag == 'div':
                 lyrics.remove(element)
