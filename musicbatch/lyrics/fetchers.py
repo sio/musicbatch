@@ -316,6 +316,7 @@ class AzLyricsFetcher(BaseLyricsFetcher):
 
 
 class SongTexteFetcher(BaseLyricsFetcher):
+    # TODO: filter out "Leider kein Songtext vorhanden."
 
     HOME = 'https://www.songtexte.com'
     search_url = 'https://www.songtexte.com/search'
