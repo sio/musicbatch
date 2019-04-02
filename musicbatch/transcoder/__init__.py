@@ -15,4 +15,5 @@ DEFAULT_CONFIG = {
     'quality': None,
     'lossy_source': 'copy',
     'cover': 250,
+    'lyrics': None,
 }

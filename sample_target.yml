@@ -12,6 +12,6 @@ output:
   lossy_source: copy  # or allow_bad_transcodes for lossy-to-lossy
 
 extras:
-  lyrics: yes
+  lyrics: /path/to/lyrics/database-or-directory
   cover: 96  # pixels
   # TODO: support blacklist / whitelist for targets

@@ -9,6 +9,7 @@ import sys
 from argparse import ArgumentParser
 from contextlib import contextmanager
 from datetime import datetime
+from functools import partial
 from subprocess import Popen, DEVNULL
 from threading import Thread
 
@@ -25,6 +26,7 @@ from musicbatch.transcoder.encoders import (
     VorbisTranscoder,
 )
 from musicbatch.transcoder.cover import copy_coverart
+from musicbatch.transcoder.lyrics import copy_lyrics, read_lyrics
 from musicbatch.transcoder.progress import (
     TranscodingStats,
     show_progress,
@@ -33,6 +35,7 @@ from musicbatch.transcoder.queue import (
     TranscodingQueue,
     execute_in_threadqueue,
 )
+from musicbatch.lyrics.db import LyricsStorage
 
 
 
@@ -119,6 +122,17 @@ class TranscodingJob:
         self.output_pattern = output.get('pattern', DEFAULT_CONFIG['pattern'])
         self.cover_size = extras.get('cover', DEFAULT_CONFIG['cover'])
 
+        lyrics_source = extras.get('lyrics', DEFAULT_CONFIG['lyrics'])
+        if not lyrics_source:
+            self.get_lyrics = None
+        elif os.path.isdir(lyrics_source):
+            self.get_lyrics = partial(read_lyrics, lyricsdir=lyrics_source)
+        elif os.path.isfile(lyrics_source):
+            database = LyricsStorage(lyrics_source)
+            self.get_lyrics = database.get
+        else:
+            self.get_lyrics = None
+
         encoder = output.get('format', DEFAULT_CONFIG['format'])
         quality = output.get('quality', DEFAULT_CONFIG['quality'])
         self.transcoder = self.ENCODERS.get(encoder)(quality)
@@ -168,6 +182,11 @@ class TranscodingJob:
             Thread(
                 target=copy_coverart,
                 kwargs=dict(task=task, size=self.cover_size)
+            ).start()
+        if self.get_lyrics:
+            Thread(
+                target=copy_lyrics,
+                kwargs=dict(task=task, lyrics_finder=self.get_lyrics),
             ).start()
 
         # Handle skipped transcodes
