@@ -20,7 +20,7 @@ log = logging.getLogger('musicbatch.lyrics.app')
 def run(*a, **ka):
     args = parse_args(*a, **ka)
     path = os.path.expandvars(args.database)
-    db = LyricsStorage(path)  # TODO: do not create database if args are invalid
+    db = LyricsStorage(path)
     ui = UIThread(db)
     if args.retry_scheduled:
         with ui:
@@ -66,7 +66,20 @@ def parse_args(*a, **ka):
         default=False,
         help='Retry fetchig lyrics that were unavailable in previous runs',
     )
-    return parser.parse_args(*a, **ka)
+    args = parser.parse_args(*a, **ka)
+    if  not args.scan_library \
+    and not args.retry_scheduled \
+    and not (args.artist or args.title):
+        parser.error('No action requested')
+    elif (args.scan_library or args.retry_scheduled) \
+    and  (args.artist or args.title):
+        parser.error('Choose either one of batch actions or a single song')
+    elif (args.scan_library and args.retry_scheduled):
+        parser.error('Only one batch action can be selected')
+    elif (args.artist or args.title) \
+    and not (args.artist and args.title):
+        parser.error('Can not specify artist without title')
+    return args
 
 
 
