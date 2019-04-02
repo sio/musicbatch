@@ -40,6 +40,7 @@ setup(
         'pillow',
         'pydub',
         'ruamel.yaml',
+        'jsonschema',
         # Lyrics + Scrapehelper
         'requests',
         'lxml',

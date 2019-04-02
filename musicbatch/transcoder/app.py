@@ -4,15 +4,18 @@ CLI application for transcoding music files
 
 
 import os
+import json
 import time
 import sys
 from argparse import ArgumentParser
 from contextlib import contextmanager
 from datetime import datetime
 from functools import partial
+from pkg_resources import resource_string
 from subprocess import Popen, DEVNULL
 from threading import Thread
 
+import jsonschema
 import mutagen
 from ruamel import yaml
 
@@ -115,6 +118,8 @@ class TranscodingJob:
             config = yaml.load(f, Loader=yaml.RoundTripLoader)
             output = config.get('output', {})
             extras = config.get('extras', {})
+
+        self.validate(config)
 
         self.job_id = config.get('name', DEFAULT_CONFIG['name'])
         self.inputs = config.get('input', [])
@@ -224,3 +229,13 @@ class TranscodingJob:
         )
         with open(os.path.join(self.output_dir, 'transcoding.log'), 'a') as logfile:
             logfile.write(log_entry)
+
+
+    def validate(self, config):
+        try:
+            schema = self.schema
+        except AttributeError:
+            package = __name__.rsplit('.', 1)[0]
+            path = 'schema.json'
+            schema = self.schema = json.loads(resource_string(package, path).decode())
+        return jsonschema.validate(config, schema)

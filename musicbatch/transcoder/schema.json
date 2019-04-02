@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/sio/musicbatch/raw/master/musicbatch/transcoder/schema.json",
+  "title": "Transcoding job",
+  "description": "Schema for configuration of transcoding job",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "name",
+    "input",
+    "output"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Transcoding job name",
+      "minLength": 1
+    },
+    "input": {
+      "type": "array",
+      "description": "Paths to directories with music to be transcoded",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["directory"],
+      "properties": {
+        "directory": {
+          "type": "string",
+          "description": "Path to transcoding destination directory",
+          "minLength": 1
+        },
+        "pattern": {
+          "type": "string",
+          "description": "Destination file hierarchy pattern",
+          "minLength": 1
+        },
+        "format": {
+          "type": "string",
+          "description": "Encoder name",
+          "pattern": "vorbis|symlink"
+        },
+        "quality": {
+          "type": "string",
+          "description": "Encoder quality. Format depends on chosen encoder",
+          "minLength": 1
+        },
+        "lossy_source": {
+          "type": "string",
+          "description": "Action for lossy files in input directories",
+          "pattern": "copy|skip|allow_bad_transcodes"
+        }
+      }
+    },
+    "extras": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "lyrics": {
+          "oneOf": [
+            {"const": null},
+            {"const": false},
+            {"type": "string",
+             "description": "Path to local lyrics storage (directory with text files or sqlite database)",
+             "minLength": 1}
+          ]
+        },
+        "cover": {
+          "oneOf": [
+            {"const": null},
+            {"const": false},
+            {"type": "integer",
+             "description": "Size of the cover art images in destination directories. No upscaling will be attempted"}
+          ]
+        }
+      }
+    }
+  }
+}
