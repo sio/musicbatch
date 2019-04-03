@@ -4,6 +4,7 @@ Command line application for local lyrics database
 
 import os.path
 import logging
+import sys
 from argparse import ArgumentParser
 from threading import Thread
 from time import sleep
@@ -30,7 +31,14 @@ def run(*a, **ka):
             db.build_library(args.scan_library)
     elif args.artist and args.title:
         lyrics = db.get(args.artist, args.title)
-        print(lyrics)
+        if lyrics:
+            print(lyrics)
+        else:
+            print(
+                'Lyrics not found for "{} - {}"'.format(args.artist, args.title),
+                file=sys.stderr
+            )
+            sys.exit(1)
     else:
         parse_args(['--help'])
 
