@@ -4,7 +4,6 @@ Handle lyrics associated with the transcoding task
 
 
 import os.path
-from shutil import copyfile
 
 from musicbatch.transcoder.util import safe_filename, make_target_directory
 

@@ -3,7 +3,6 @@ Fetch lyrics from public collections
 '''
 
 import re
-from urllib.parse import quote
 
 from lxml import etree
 from lxml.html import HtmlComment, iterlinks
