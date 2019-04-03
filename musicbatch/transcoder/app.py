@@ -15,8 +15,8 @@ from pkg_resources import resource_string
 from subprocess import Popen, DEVNULL
 from threading import Thread
 
-import jsonschema
 import mutagen
+from jsonschema import Draft7Validator as JSONSchemaValidator
 from ruamel import yaml
 
 from musicbatch.transcoder import (
@@ -237,9 +237,20 @@ class TranscodingJob:
 
     def validate(self, config):
         try:
-            schema = self.schema
+            validator = self.validator
         except AttributeError:
             package = __name__.rsplit('.', 1)[0]
             path = 'schema.json'
-            schema = self.schema = json.loads(resource_string(package, path).decode())
-        return jsonschema.validate(config, schema)
+            schema = json.loads(resource_string(package, path).decode())
+            validator = self.validator = JSONSchemaValidator(schema)
+
+        error_messages = []
+        for error in self.validator.iter_errors(config):
+            error_messages.append(' - {}: {}'.format(
+                    '.'.join(error.path) if error.path else '[config]',
+                    error.message
+            ))
+        if error_messages:
+            raise ValueError('invalid configuration values:\n{}'.format(
+                    '\n'.join(sorted(error_messages))
+            ))
