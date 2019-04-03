@@ -114,8 +114,6 @@ class TranscodingJob:
         self.config_file = config_file
         self._timestamp = None
 
-        # TODO: validate config file against schema
-
         with open(config_file, encoding=CONFIG_ENCODING) as f:
             config = yaml.load(f, Loader=yaml.RoundTripLoader)
             output = config.get('output', {})
@@ -156,7 +154,6 @@ class TranscodingJob:
             os.makedirs(self.output_dir)
 
         log.debug('Initialized {}'.format(self))
-        # TODO: handle 'extras' section (lyrics, cover, etc)
 
 
     def __repr__(self):

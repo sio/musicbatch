@@ -10,7 +10,7 @@ from musicbatch.transcoder.util import safe_filename, make_target_directory
 
 
 
-def read_lyrics(artist, title, lyricsdir='$HOME/.lyrics'):  # TODO: finish this stub
+def read_lyrics(artist, title, lyricsdir='$HOME/.lyrics'):
     '''
     Get song lyrics from text files in lyrics directory
     '''
