@@ -57,7 +57,7 @@
         "lossy_source": {
           "type": "string",
           "description": "Action for lossy files in input directories",
-          "pattern": "copy|skip|allow_bad_transcodes"
+          "pattern": "^(copy|skip|allow_bad_transcodes)$"
         }
       }
     },
