@@ -15,3 +15,5 @@ extras:
   lyrics: /path/to/lyrics/database-or-directory  # optional: path to lyrics database / lyrics directory / null or false to skip copying lyrics
   cover: 96  # optional: max size of cover art in pixels / null, false to disable copying covers
   # TODO: support blacklist / whitelist for targets
+  # TODO: add default values to json schema
+  # TODO: generate documentation from json schema
