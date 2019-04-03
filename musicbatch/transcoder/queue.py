@@ -10,7 +10,7 @@ from threading import Thread
 import mutagen
 
 from hods import Metadata, TreeStructuredData
-from musicbatch.transcoder.util import find_music
+from musicbatch.transcoder.util import find_music, safe_filename
 
 
 import logging
@@ -165,7 +165,8 @@ class TranscodingTask:
         if self._target is not None:
             return self._target
 
-        target = self.pattern.format(**self.path_elements)
+        safe_elements = {k: safe_filename(v) for k,v in self.path_elements.items()}
+        target = self.pattern.format(**safe_elements)
         if self._target_dir is not None:
             target = os.path.join(self._target_dir, os.path.basename(target))
 

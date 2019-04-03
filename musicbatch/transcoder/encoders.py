@@ -11,7 +11,6 @@ from pydub import AudioSegment
 
 from musicbatch.transcoder.util import (
     make_target_directory,
-    safe_filepath,
     skip_action,
 )
 
@@ -56,7 +55,6 @@ class Transcoder(TranscoderConstants):
         if not output_filename.lower().endswith(extension):
             output_filename += extension
 
-        output_filename = safe_filepath(output_filename)
         make_target_directory(output_filename)
         if not skip_action(input_filename, output_filename):
             # ffmpeg format names usually match extension
@@ -114,7 +112,6 @@ class VerbatimFileCopy(TranscoderConstants):
         extension = '.' + os.path.splitext(input_filename)[1][1:].lower()
         if not output_filename.lower().endswith(extension):
             output_filename += extension
-        output_filename = safe_filepath(output_filename)
         make_target_directory(output_filename)
         if not skip_action(input_filename, output_filename):
             copyfile(input_filename, output_filename)
@@ -146,7 +143,6 @@ class SymlinkCreator(VerbatimFileCopy):
         extension = os.path.splitext(input_filename)[1].lower()
         if not output_filename.lower().endswith(extension):
             output_filename += extension
-        output_filename = safe_filepath(output_filename)
         make_target_directory(output_filename)
         if not skip_action(input_filename, output_filename):
             if os.path.exists(output_filename):

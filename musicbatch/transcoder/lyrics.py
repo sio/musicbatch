@@ -6,7 +6,7 @@ Handle lyrics associated with the transcoding task
 import os.path
 from shutil import copyfile
 
-from musicbatch.transcoder.util import safe_filepath
+from musicbatch.transcoder.util import safe_filename
 
 
 
@@ -22,7 +22,7 @@ def read_lyrics(artist, title, lyricsdir='$HOME/.lyrics'):  # TODO: finish this 
         return
     for artist, title in (
         (artist, title),
-        map(safe_filepath, (artist, title)),
+        map(safe_filename, (artist, title)),
     ):
         for filename in filenames:
             fullpath = os.path.join(

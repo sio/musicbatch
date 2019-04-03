@@ -64,7 +64,7 @@ def make_target_directory(output_filename):
 
 
 
-_bad_characters = re.compile(r'[^\w\d%s !.()_+-]' % os.sep)
-def safe_filepath(path, placeholder=''):
-    '''Convert arbitrary file path into a safe version suitable for any file system'''
-    return _bad_characters.sub(placeholder, path)
+_bad_characters = re.compile(r'[^\w\d !.()_+-]')
+def safe_filename(name, placeholder=''):
+    '''Convert arbitrary filename into a safe version suitable for any file system'''
+    return _bad_characters.sub(placeholder, name)
