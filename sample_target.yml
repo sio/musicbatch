@@ -1,17 +1,17 @@
-name: Sansa Clip Zip  # required
+name: Sansa Clip Zip  # required: transcoding job identifier
 
-input:  # at least one directory is required
+input:  # required: at least one directory path
   - /home/user/music
   - /media/torrents/music
 
 output:
-  directory: /media/user/SANSA_SD  # required
-  pattern: '{artist}/{year} - {album}/{number} - {title}'  # optional
-  format: vorbis  # or mp3, opus, aotuv  # optional
-  quality: q5  # optional
+  directory: /media/user/SANSA_SD  # required: path to destination directory
+  pattern: '{artist}/{year} - {album}/{number} - {title}'  # optional: file hierarchy in destination directory
+  format: vorbis  # optional: vorbis (default) / copy / symlink
+  quality: q5  # optional: default value depends on selected output format
   lossy_source: copy  # optional: copy (default) / allow_bad_transcodes / skip
 
 extras:
-  lyrics: /path/to/lyrics/database-or-directory  # optional
-  cover: 96  # pixels  # optional
+  lyrics: /path/to/lyrics/database-or-directory  # optional: path to lyrics database / lyrics directory / null or false to skip copying lyrics
+  cover: 96  # optional: max size of cover art in pixels / null, false to disable copying covers
   # TODO: support blacklist / whitelist for targets
