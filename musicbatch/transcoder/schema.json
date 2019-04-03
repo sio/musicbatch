@@ -42,9 +42,12 @@
           "minLength": 1
         },
         "format": {
-          "type": "string",
           "description": "Encoder name",
-          "pattern": "vorbis|symlink"
+          "oneOf": [
+            {"const": "copy"},
+            {"const": "symlink"},
+            {"const": "vorbis"}
+          ]
         },
         "quality": {
           "type": "string",

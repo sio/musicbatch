@@ -20,6 +20,7 @@ import mutagen
 from ruamel import yaml
 
 from musicbatch.transcoder import (
+    CONFIG_ENCODING,
     DEFAULT_CONFIG,
     LOSSLESS_EXTENSIONS,
 )
@@ -100,8 +101,9 @@ class TranscodingJob:
 
     ENCODERS = {
         None: VorbisTranscoder,
-        'vorbis': VorbisTranscoder,
+        'copy': VerbatimFileCopy,
         'symlink': SymlinkCreator,
+        'vorbis': VorbisTranscoder,
     }
 
 
@@ -114,7 +116,7 @@ class TranscodingJob:
 
         # TODO: validate config file against schema
 
-        with open(config_file) as f:
+        with open(config_file, encoding=CONFIG_ENCODING) as f:
             config = yaml.load(f, Loader=yaml.RoundTripLoader)
             output = config.get('output', {})
             extras = config.get('extras', {})
@@ -144,7 +146,8 @@ class TranscodingJob:
 
         lossy_action = output.get('lossy_source', DEFAULT_CONFIG['lossy_source'])
         if lossy_action == 'allow_bad_transcodes'\
-        or encoder == 'symlink':
+        or encoder == 'symlink' \
+        or encoder == 'copy':
             self.lossy_action = self.transcoder
         elif lossy_action == 'copy':
             self.lossy_action = VerbatimFileCopy()

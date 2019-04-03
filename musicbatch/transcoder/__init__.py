@@ -17,3 +17,4 @@ DEFAULT_CONFIG = {
     'cover': 250,
     'lyrics': None,
 }
+CONFIG_ENCODING = 'utf-8'
