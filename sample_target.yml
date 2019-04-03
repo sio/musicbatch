@@ -9,7 +9,7 @@ output:
   pattern: '{artist}/{year} - {album}/{number} - {title}'  # optional
   format: vorbis  # or mp3, opus, aotuv  # optional
   quality: q5  # optional
-  lossy_source: copy  # or allow_bad_transcodes for lossy-to-lossy  # optional  # TODO: skip
+  lossy_source: copy  # optional: copy (default) / allow_bad_transcodes / skip
 
 extras:
   lyrics: /path/to/lyrics/database-or-directory  # optional

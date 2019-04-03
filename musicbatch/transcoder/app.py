@@ -149,6 +149,10 @@ class TranscodingJob:
             self.lossy_action = self.transcoder
         elif lossy_action == 'copy':
             self.lossy_action = VerbatimFileCopy()
+        elif lossy_action == 'skip':
+            skip_marker = self.transcoder.STATUS_SKIP
+            self.lossy_action = lambda infile, outfile: (infile, skip_marker)
+            self.lossy_action.STATUS_SKIP = skip_marker
 
         if not os.path.isdir(self.output_dir):
             os.makedirs(self.output_dir)
