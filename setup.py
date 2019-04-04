@@ -4,21 +4,9 @@ import subprocess
 import sys
 
 
-class InstallDependenciesByDirectLink(install):
-    direct_links = [
-        'https://github.com/sio/hods/archive/master.zip#egg=hods',
-    ]
-    def run(self):
-        if self.direct_links:
-            subprocess.call(
-                [sys.executable, '-m', 'pip', 'install'] + self.direct_links
-            )
-        super().run()
-
-
 setup(
     name='musicbatch',
-    version='0.0.1',
+    version='0.0.1-git',
     description='Batch processing of music files',
     url='https://github.com/sio/musicbatch',
     author='Vitaly Potyarkin',
@@ -33,7 +21,6 @@ setup(
     },
     packages=find_packages(exclude=('tests',)),
     include_package_data=True,
-    cmdclass={'install': InstallDependenciesByDirectLink},
     install_requires=[
         # Transcoder
         'mutagen',
@@ -41,11 +28,11 @@ setup(
         'pydub',
         'ruamel.yaml',
         'jsonschema',
+        'hods @ https://github.com/sio/hods/archive/master.zip',
         # Lyrics + Scrapehelper
         'requests',
         'lxml',
         'sqlalchemy',
-        # 'hods' package will be installed via direct link since it's not published on PyPA
     ],
     python_requires='>=3.3',
     zip_safe=True,
