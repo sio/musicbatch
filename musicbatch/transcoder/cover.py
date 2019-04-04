@@ -54,7 +54,7 @@ def locate_coverart(music_file):
     # Fallback: use a random image from relevant subdirs
     extensions = set('.{}'.format(e) for e in COVER_EXT)
     for subdir, filenames in files.items():
-        images = [f for f in filenames if os.path.splitext(f)[1] in extensions]
+        images = [f for f in filenames if os.path.splitext(f)[1].lower() in extensions]
         if images:
             return os.path.join(directory, subdir, random.choice(images))
 
