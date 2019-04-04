@@ -45,34 +45,42 @@ def run(*a, **ka):
 
 
 def parse_args(*a, **ka):
-    parser = ArgumentParser(description='Interact with local lyrics database')
+    parser = ArgumentParser(description=(
+        'Interact with local lyrics database. '
+        'Populate the database with lyrics from web sources for all songs in a given directory '
+        'or return the text of a single song if ARTIST and TITLE are specified.'
+    ))
     parser.add_argument(
         'artist',
         nargs='?',
         default=None,
+        metavar='ARTIST',
         help='Song artist',
     )
     parser.add_argument(
         'title',
         nargs='?',
         default=None,
+        metavar='TITLE',
         help='Song title',
     )
     parser.add_argument(
         '--database',
         default='$HOME/.lyrics.db',
-        help='Path to local lyrics database',
+        metavar='FILE',
+        help='Path to local lyrics database (default: ~/.lyrics.db)',
     )
     parser.add_argument(
         '--scan-library',
         default=None,
-        help='Populate local lyrics database with text for all songs in this library',
+        metavar='DIR',
+        help='Populate local lyrics database with texts for all songs in this directory (recursive)',
     )
     parser.add_argument(
         '--retry-scheduled',
         action='store_true',
         default=False,
-        help='Retry fetchig lyrics that were unavailable in previous runs',
+        help='Retry fetching lyrics that were unavailable in previous runs',
     )
     args = parser.parse_args(*a, **ka)
     if  not args.scan_library \

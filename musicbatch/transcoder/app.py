@@ -74,9 +74,13 @@ def run(*a, **ka):
 
 
 def parse_args(*a, **ka):
-    parser = ArgumentParser(description='Batch transcode music files according to the provided config')
+    parser = ArgumentParser(
+        description='Batch transcode music files according to the provided configuration file',
+        epilog='This program relies on FFmpeg <http://ffmpeg.org> for audio encoding. Please make sure it\'s installed',
+    )
     parser.add_argument(
         'config',
+        metavar='CONFIG',
         help='Path to YAML description of the transcoding job',
     )
     return parser.parse_args(*a, **ka)

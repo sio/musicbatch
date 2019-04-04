@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 setup(
     name='musicbatch',
     version='0.0.1-git',
-    description='Batch processing of music files',
+    description='Batch processing tools for music files',
     url='https://github.com/sio/musicbatch',
     author='Vitaly Potyarkin',
     author_email='sio.wtf@gmail.com',
