@@ -86,13 +86,16 @@ class LyricsWikiFetcher(BaseLyricsFetcher):
     noise = re.compile(r"''+", re.DOTALL)
 
     def __call__(self, artist, title):
-        api_response = self.get(self.api, params=dict(
-            action = 'lyrics',
-            func = 'getSong',
-            fmt = 'xml',  # JSON output is malformed! Single quotes all over the place
-            artist = self.fix_the(artist),
-            song = title,
-        ))
+        try:
+            api_response = self.get(self.api, params=dict(
+                action = 'lyrics',
+                func = 'getSong',
+                fmt = 'xml',  # JSON output is malformed! Single quotes all over the place
+                artist = self.fix_the(artist),
+                song = title,
+            ))
+        except DataFetcherError:
+            return self.NOT_FOUND
 
         overview = etree.fromstring(api_response.content)
         if not overview.xpath('page_id//text()') \
@@ -100,7 +103,10 @@ class LyricsWikiFetcher(BaseLyricsFetcher):
             return self.NOT_FOUND
 
         full_page_url = overview.xpath('url//text()')[0]
-        html = self.parse_html(full_page_url, params=dict(action='edit'))
+        try:
+            html = self.parse_html(full_page_url, params=dict(action='edit'))
+        except DataFetcherError:
+            return self.NOT_FOUND
         wiki_text = html.xpath('//*[@id="wpTextbox1"]//text()')[0]
         lyrics = self.marker.sub(r'\1', wiki_text)
         lyrics = self.noise.sub('', lyrics).strip()
