@@ -5,7 +5,7 @@
 
 set -e
 
-TRANSCODING_PARAMETERS="-f opus -acodec libopus -b:a 96 -vbr on"
+TRANSCODING_PARAMETERS="-f opus -acodec libopus -ab 96k -vbr on"
 INPUT="$1"
 DEST_DIR="./abx-samples"
 
