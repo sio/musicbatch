@@ -18,7 +18,8 @@ processing large collections of music files:
 
 ## Installation
 
-1. Install Python package: `pip install "https://github.com/sio/musicbatch/archive/master.zip"`
+1. Install Python package: `pip install
+"https://github.com/sio/musicbatch/tarball/master"`
 
 2. Install [FFmpeg](http://ffmpeg.org) - it's used as audio encoding backend.
 
