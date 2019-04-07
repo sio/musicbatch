@@ -21,7 +21,10 @@ from sqlalchemy.orm import (
     sessionmaker,
 )
 
-from musicbatch.metadata import VARIOUS_ARTISTS
+from musicbatch.metadata import (
+    METADATA_WHATCD,
+    VARIOUS_ARTISTS,
+)
 
 
 
@@ -127,3 +130,17 @@ class WhatAPIArchive:
         query = Query(WhatAPIResponse).filter_by(**filters)
         with self.session() as session:
             return query.with_session(session)
+
+
+    def dump(self, torrents_dir):
+        '''Distribute archived responses to their respected target directories'''
+        with self.session() as session:
+            for record in session.query(WhatAPIResponse):
+                if not record.target:  # skip one-file torrents
+                    continue
+                destination = os.path.join(torrents_dir, record.target, METADATA_WHATCD)
+                if os.path.exists(os.path.join(torrents_dir, record.target)) \
+                and not os.path.exists(destination):
+                    os.makedirs(os.path.dirname(destination), exist_ok=True)
+                    with open(destination, 'w', encoding='utf-8') as f:
+                        f.write(record.raw)

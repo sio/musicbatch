@@ -153,6 +153,7 @@ class MusicAlbumInfo(Metadata):
 
 def generate(directories, target=None, recursive=False):
     '''Generate album metadata files for given directories'''
+    # TODO: command line interface for generating metadata
     if target is None:
         target = METADATA_YAML
     if isinstance(directories, str):
