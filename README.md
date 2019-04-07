@@ -146,7 +146,6 @@ Copyright 2019 Vitaly Potyarkin
     - LAME
     - AAC
 - Manage album metadata
-    - Move `music` subpackage from `hods`
     - Support blacklist / whitelist for targets
     - Generate info page
     - Copy/symlink metadata directory when transcoding
