@@ -14,6 +14,7 @@ setup(
         'console_scripts': [
             'transcoder=musicbatch.transcoder.app:run',
             'lyrics=musicbatch.lyrics.app:run',
+            'metadata=musicbatch.metadata.app:run',
         ],
     },
     packages=find_packages(exclude=('tests',)),
