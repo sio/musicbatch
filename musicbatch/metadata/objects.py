@@ -166,8 +166,7 @@ def generate(directories, target=None, recursive=False):
         meta = MusicAlbumInfo(fromdir=dirname)
         if len(meta.data.tracks):
             meta_dir = os.path.dirname(filename)
-            if not os.path.exists(meta_dir):
-                os.makedirs(meta_dir)
+            os.makedirs(meta_dir, exist_ok=True)
             meta.write(filename)
             log.debug('Metadata written: {}'.format(filename))
 
