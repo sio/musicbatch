@@ -12,10 +12,10 @@ setup(
     platforms='any',
     entry_points={
         'console_scripts': [
-            'musicbatch=musicbatch.app:run',
-            'transcoder=musicbatch.transcoder.app:run',
-            'lyrics=musicbatch.lyrics.app:run',
-            'metadata=musicbatch.metadata.app:run',
+            'music=musicbatch.app:run',
+            'music-transcoder=musicbatch.transcoder.app:run',
+            'music-lyrics=musicbatch.lyrics.app:run',
+            'music-metadata=musicbatch.metadata.app:run',
         ],
     },
     packages=find_packages(exclude=('tests',)),
