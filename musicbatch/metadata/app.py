@@ -48,8 +48,8 @@ def run(*a, **ka):
 
 
 
-def parse_args(*a, **ka):
-    parser = ArgumentParser(description='Manage music metadata with YAML files')
+def parse_args(*a, prog=None, **ka):
+    parser = ArgumentParser(description='Manage music metadata with YAML files', prog=prog)
     parser.add_argument(
         'directory',
         metavar='DIR',

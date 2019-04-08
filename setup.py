@@ -12,6 +12,7 @@ setup(
     platforms='any',
     entry_points={
         'console_scripts': [
+            'musicbatch=musicbatch.app:run',
             'transcoder=musicbatch.transcoder.app:run',
             'lyrics=musicbatch.lyrics.app:run',
             'metadata=musicbatch.metadata.app:run',

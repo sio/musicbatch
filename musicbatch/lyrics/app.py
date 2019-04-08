@@ -44,12 +44,15 @@ def run(*a, **ka):
 
 
 
-def parse_args(*a, **ka):
-    parser = ArgumentParser(description=(
+def parse_args(*a, prog=None, **ka):
+    parser = ArgumentParser(
+        description=(
         'Interact with local lyrics database. '
         'Populate the database with lyrics from web sources for all songs in a given directory '
         'or return the text of a single song if ARTIST and TITLE are specified.'
-    ))
+        ),
+        prog=prog,
+    )
     parser.add_argument(
         'artist',
         nargs='?',
