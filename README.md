@@ -88,6 +88,10 @@ output:
   format: vorbis  # optional: vorbis (default) / copy / symlink
   quality: q5  # optional: default value depends on selected output format
   lossy_source: copy  # optional: copy (default) / allow_bad_transcodes / skip
+  category_blacklist:  # optional: select which albums to transcode based on HODS metadata files
+  # also: category_whitelist
+    - foo
+    - bar
 
 extras:
   lyrics: /path/to/lyrics/database-or-directory  # optional: path to lyrics database / lyrics directory / null or false to skip copying lyrics
@@ -146,7 +150,6 @@ Copyright 2019 Vitaly Potyarkin
     - LAME
     - AAC
 - Manage album metadata
-    - Support blacklist / whitelist for targets
     - Generate info page
     - Copy/symlink metadata directory when transcoding
 - Extras

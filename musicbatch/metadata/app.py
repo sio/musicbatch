@@ -19,7 +19,7 @@ def run(*a, **ka):
         directories = (args.directory, )
     if args.generate:
         generate(directories, target=args.location)
-    else:  # edit target list
+    else:  # edit category list
         for dirpath in directories:
             meta_file = os.path.join(dirpath, args.location)
             if not os.path.exists(meta_file):
@@ -30,17 +30,17 @@ def run(*a, **ka):
             except AttributeError:
                 meta.extra = {}
             try:
-                meta.extra.targets
+                meta.extra.categories
             except AttributeError:
-                meta.extra.targets = []
-            if args.set_targets:
-                meta.extra.targets = args.targets
-            elif args.add_targets:
-                meta.extra.targets = list(set(meta.extra.targets).union(args.targets))
-            elif args.del_targets:
-                meta.extra.targets = list(set(meta.extra.targets).difference(args.targets))
-            elif args.clear_targets:
-                meta.extra.targets = []
+                meta.extra.categories = []
+            if args.set_categories:
+                meta.extra.categories = args.categories
+            elif args.add_categories:
+                meta.extra.categories = list(set(meta.extra.categories).union(args.categories))
+            elif args.del_categories:
+                meta.extra.categories = list(set(meta.extra.categories).difference(args.categories))
+            elif args.clear_categories:
+                meta.extra.categories = []
             else:
                 raise RuntimeError('Impossible branching, invalid arguments')
             meta.validate_hashes(write_updates=True)
@@ -74,35 +74,35 @@ def parse_args(*a, prog=None, **ka):
         help='Create metadata file(s) for specified directory',
     )
     actions.add_argument(
-        '--add-targets',
-        metavar='TARGETS',
-        help='Add specified target or targets (comma-separated list) to metadata file',
+        '--add-categories',
+        metavar='CATEGORIES',
+        help='Add specified category or categories (comma-separated list) to metadata file',
     )
     actions.add_argument(
-        '--set-targets',
-        metavar='TARGETS',
-        help='Replace targets in metadata file with specified values',
+        '--set-categories',
+        metavar='CATEGORIES',
+        help='Replace categories in metadata file with specified values',
     )
     actions.add_argument(
-        '--del-targets',
-        metavar='TARGETS',
-        help='Remove specified targets from metadata file(s)',
+        '--del-categories',
+        metavar='CATEGORIES',
+        help='Remove specified categories from metadata file(s)',
     )
     actions.add_argument(
-        '--clear-targets',
+        '--clear-categories',
         action='store_true',
         default=False,
-        help='Remove all targets from metadata file(s)',
+        help='Remove all categories from metadata file(s)',
     )
     args = parser.parse_args(*a, **ka)
-    targets = None
-    for option in (args.add_targets, args.set_targets, args.del_targets):
+    categories = None
+    for option in (args.add_categories, args.set_categories, args.del_categories):
         if option:
-            targets = [t.strip() for t in option.split(',') if t.strip()]
+            categories = [c.strip() for c in option.split(',') if c.strip()]
             break
-    if targets is not None and not targets:
-        parser.error('Invalid list of targets: {}'.format(option))
-    args.targets = targets
+    if categories is not None and not categories:
+        parser.error('Invalid list of categories: {}'.format(option))
+    args.categories = categories
     return args
 
 

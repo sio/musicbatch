@@ -148,6 +148,7 @@ class TranscodingTask:
         self._path_elements = None
         self._target = None
         self._target_dir = target_dir
+        self._categories = None
 
         log.debug('Initialized {}'.format(self))
 
@@ -228,6 +229,17 @@ class TranscodingTask:
             raise TypeError('Expected a TreeStructuredData object, got {}'.format(
                 value.__class__.__name__
             ))
+
+
+    @property
+    def categories(self):
+        '''Return set of categories describing current task'''
+        if self._categories is None:
+            try:
+                self._categories = set(self.metadata.extra.categories)
+            except (KeyError, AttributeError):
+                self._categories = set()
+        return self._categories
 
 
     @property
