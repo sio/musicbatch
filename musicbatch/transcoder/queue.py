@@ -10,6 +10,7 @@ from threading import Thread
 import mutagen
 
 from hods import Metadata, TreeStructuredData
+from musicbatch.metadata import METADATA_YAML
 from musicbatch.transcoder.util import find_music, safe_filename
 
 
@@ -203,7 +204,7 @@ class TranscodingTask:
         if self._metadata is not None:
             return self._metadata
 
-        metadata_filename = 'album_hods.yml'
+        metadata_filename = METADATA_YAML
         possible_paths = ['.', '..']
 
         for subdir in possible_paths:
@@ -236,7 +237,7 @@ class TranscodingTask:
         '''Return set of categories describing current task'''
         if self._categories is None:
             try:
-                self._categories = set(self.metadata.extra.categories)
+                self._categories = set(self.metadata._parent.extra.categories)
             except (KeyError, AttributeError):
                 self._categories = set()
         return self._categories

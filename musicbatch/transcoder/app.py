@@ -137,7 +137,7 @@ class TranscodingJob:
         elif output.get('category_whitelist'):
             self.select_mode = 'whitelist'
             self.select = set(output.get('category_whitelist'))
-        else:
+        else: # TODO: disallow blacklist and whitelist simultaneously in config (edit schema)
             self.select_mode = None
             self.select = set()
 
