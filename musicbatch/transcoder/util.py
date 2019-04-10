@@ -37,6 +37,7 @@ def mtime(filename):
     Return zero if file does not exist.
     '''
     try:
+        # TODO: detect mtime for symlinks instead of their target
         return os.path.getmtime(filename)
     except FileNotFoundError:
         return 0
