@@ -131,6 +131,15 @@ class TranscodingJob:
         self.output_dir = output.get('directory')
         self.output_pattern = output.get('pattern', DEFAULT_CONFIG['pattern'])
         self.cover_size = extras.get('cover', DEFAULT_CONFIG['cover'])
+        if output.get('category_blacklist'):
+            self.select_mode = 'blacklist'
+            self.select = set(output.get('category_blacklist'))
+        elif output.get('category_whitelist'):
+            self.select_mode = 'whitelist'
+            self.select = set(output.get('category_whitelist'))
+        else: # TODO: disallow blacklist and whitelist simultaneously in config (edit schema)
+            self.select_mode = None
+            self.select = set()
 
         lyrics_source = extras.get('lyrics', DEFAULT_CONFIG['lyrics'])
         if not lyrics_source:
@@ -173,6 +182,12 @@ class TranscodingJob:
     def transcode(self, task):
         '''Execute a single transcoding task'''
         log.debug('Started {task}'.format(task=task))
+
+        if (self.select_mode == 'blacklist' and self.select.intersection(task.categories)) \
+        or (self.select_mode == 'whitelist' and not self.select.intersection(task.categories)):
+            self.stats.record_skip()
+            log.debug('Skipped {task}'.format(task=task))
+            return
 
         source_format = os.path.splitext(task.source)[1][1:].lower()
         if source_format in LOSSLESS_EXTENSIONS:
