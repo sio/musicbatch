@@ -27,46 +27,56 @@
       }
     },
     "output": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["directory"],
-      "properties": {
-        "directory": {
-          "type": "string",
-          "description": "Path to transcoding destination directory",
-          "minLength": 1
+      "allOf": [
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["directory"],
+        "properties": {
+          "directory": {
+            "type": "string",
+            "description": "Path to transcoding destination directory",
+            "minLength": 1
+          },
+          "pattern": {
+            "type": "string",
+            "description": "Destination file hierarchy pattern",
+            "minLength": 1
+          },
+          "format": {
+            "description": "Encoder name",
+            "oneOf": [
+              {"const": "copy"},
+              {"const": "symlink"},
+              {"const": "vorbis"}
+            ]
+          },
+          "quality": {
+            "type": "string",
+            "description": "Encoder quality. Format depends on chosen encoder",
+            "minLength": 1
+          },
+          "lossy_source": {
+            "type": "string",
+            "description": "Action for lossy files in input directories",
+            "pattern": "^(copy|skip|allow_bad_transcodes)$"
+          }
         },
-        "pattern": {
-          "type": "string",
-          "description": "Destination file hierarchy pattern",
-          "minLength": 1
-        },
-        "format": {
-          "description": "Encoder name",
-          "oneOf": [
-            {"const": "copy"},
-            {"const": "symlink"},
-            {"const": "vorbis"}
-          ]
-        },
-        "quality": {
-          "type": "string",
-          "description": "Encoder quality. Format depends on chosen encoder",
-          "minLength": 1
-        },
-        "lossy_source": {
-          "type": "string",
-          "description": "Action for lossy files in input directories",
-          "pattern": "^(copy|skip|allow_bad_transcodes)$"
+        "patternProperties": {
+          "category_(black|white)list": {
+            "type": "array",
+            "description": "Filter input albums based on HODS metadata files",
+            "items": {"type": "string", "minLength": 1}
+          }
         }
       },
-      "patternProperties": {
-        "category_(black|white)list": {
-          "type": "array",
-          "description": "Filter input albums based on HODS metadata files",
-          "items": {"type": "string", "minLength": 1}
-        }
+      {
+        "anyOf": [
+          {"propertyNames": {"pattern": "^(?!category_blacklist).*"}},
+          {"propertyNames": {"pattern": "^(?!category_whitelist).*"}}
+        ]
       }
+      ]
     },
     "extras": {
       "type": "object",
