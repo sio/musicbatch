@@ -197,3 +197,5 @@ Copyright 2019 Vitaly Potyarkin
     - Add default values to json schema
     - Generate documentation from json schema
 - `git grep TОDО`
+- Configuration
+    - Generate new config file from template
