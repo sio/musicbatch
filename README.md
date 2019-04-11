@@ -14,6 +14,7 @@ processing large collections of music files:
 - Transcoding the whole library (or parts of it) to another format, e.g. for
   exporting to a portable media player
 - Fetching and displaying lyrics for music files
+- Generating and managing album metadata with [HODS files](https://hods.ml/schemas/)
 
 
 ## Installation
@@ -27,16 +28,23 @@ processing large collections of music files:
 
 ## Usage
 
-Upon installation, this package provides two command line applications:
-`lyrics` and `transcoder`. You can also access the package from your Python
-scripts via `import musicbatch`.
+This package provides command line interface and Python modules for
+incorporating into your scripts.
+
+Command line interface may be accessed via `music` command or by executing the
+top-level module directly: `python -m musicbatch`. Main CLI entry point
+resembles git behavior - it relays all work to one of subcommands:
+
+- lyrics
+- metadata
+- transcoder
 
 ### lyrics
 
 ```
-usage: lyrics [-h] [--database FILE] [--scan-library DIR]
-              [--retry-scheduled]
-              [ARTIST] [TITLE]
+usage: music lyrics [-h] [--database FILE] [--scan-library DIR]
+                    [--retry-scheduled]
+                    [ARTIST] [TITLE]
 
 Interact with local lyrics database. Populate the database with lyrics from
 web sources for all songs in a given directory or return the text of a single
@@ -55,10 +63,41 @@ optional arguments:
                       runs
 ```
 
+### metadata
+
+```
+usage: music metadata [-h] [--recursive] [--location LOCATION]
+                      (--generate | --add-categories CATEGORIES
+                      | --set-categories CATEGORIES | --del-categories CATEGORIES
+                      | --clear-categories) DIR
+
+Manage music metadata with YAML files
+
+positional arguments:
+  DIR                   Directory with music files
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --recursive           Process all nested directories within DIR
+  --location LOCATION   Relative path to metadata file
+                        (default=.meta\info.yml)
+  --generate            Create metadata file(s) for specified directory
+  --add-categories CATEGORIES
+                        Add specified category or categories (comma-separated
+                        list) to metadata file
+  --set-categories CATEGORIES
+                        Replace categories in metadata file with specified
+                        values
+  --del-categories CATEGORIES
+                        Remove specified categories from metadata file(s)
+  --clear-categories    Remove all categories from metadata file(s)
+```
+
+
 ### transcoder
 
 ```
-usage: transcoder [-h] CONFIG
+usage: music transcoder [-h] CONFIG
 
 Batch transcode music files according to the provided configuration file
 
