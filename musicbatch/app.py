@@ -44,4 +44,3 @@ def parse_args(*a, **ka):
     result = parser.parse_args(subcommand, *a, **ka)
     prog = '{} {}'.format(parser.prog, result.subcommand)
     return prog, result.subcommand, args
-

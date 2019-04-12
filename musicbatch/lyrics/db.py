@@ -99,6 +99,7 @@ class LyricsStorage:
 
 
     def get(self, artist, title):
+        '''Return lyrics for a single song'''
         log.debug('Retrieving lyrics for: {} - {}'.format(artist, title))
         with self.session() as session:
             # 1. Return from storage

@@ -178,6 +178,7 @@ class TranscodingTask:
 
     @property
     def target_dir(self):
+        '''Path to transcoding destination directory'''
         if self._target_dir is None:
             self._target_dir = os.path.dirname(self.target)
         return self._target_dir

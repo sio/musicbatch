@@ -107,10 +107,10 @@ def parse_args(*a, prog=None, **ka):
 
 @contextmanager
 def restore_stdin():
+    '''Restore standard input in terminal (pydub's subprocesses mess with it)'''
     stdin, stdout, stderr = sys.stdin, sys.stdout, sys.stderr
     yield
     try:
-        # Restore standard input in terminal (pydub's subprocesses mess with it)
         Popen(['stty', 'echo'], stdout=DEVNULL, stderr=DEVNULL)
     except Exception:
         pass
@@ -288,13 +288,14 @@ class TranscodingJob:
 
 
     def validate(self, config):
+        '''Validate transcoding job configuration'''
         try:
-            validator = self.validator
+            self.validator
         except AttributeError:
             package = __name__.rsplit('.', 1)[0]
             path = 'schema.json'
             schema = json.loads(resource_string(package, path).decode())
-            validator = self.validator = JSONSchemaValidator(schema)
+            self.validator = JSONSchemaValidator(schema)
 
         error_messages = []
         for error in self.validator.iter_errors(config):
