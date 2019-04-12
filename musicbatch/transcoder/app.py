@@ -5,6 +5,7 @@ CLI application for transcoding music files
 
 import os
 import json
+import platform
 import time
 import sys
 from argparse import ArgumentParser
@@ -62,6 +63,13 @@ def run(*a, **ka):
     #    - Copy cover art
 
     args = parse_args(*a, **ka)
+
+    if args.newconfig:
+        with open(args.config, 'wb') as config:
+            config.write(resource_string(__name__.rsplit('.', 1)[0], 'sample.yml'))
+        edit_file(args.config)
+        return
+
     job = TranscodingJob(args.config)
     tasks = TranscodingQueue(job.inputs, job.output_pattern)
 
@@ -84,7 +92,16 @@ def parse_args(*a, prog=None, **ka):
         metavar='CONFIG',
         help='Path to YAML description of the transcoding job',
     )
-    return parser.parse_args(*a, **ka)
+    parser.add_argument(
+        '--newconfig',
+        action='store_true',
+        default=False,
+        help='Create new configuration file from template and open it for editing',
+    )
+    args = parser.parse_args(*a, **ka)
+    if args.newconfig and os.path.exists(args.config):
+        parser.error('File already exists: {}'.format(args.config))
+    return args
 
 
 
@@ -98,6 +115,23 @@ def restore_stdin():
     except Exception:
         pass
     sys.stdin, sys.stdout, sys.stderr = stdin, stdout, stderr
+
+
+
+def edit_file(path):
+    '''Open text file for editing in default application'''
+    try:
+        os.startfile(path)
+    except AttributeError:
+        if platform.system() == 'Darwin':
+            command = ['open', path]
+        elif os.environ.get('EDITOR'):
+            command = [os.environ.get('EDITOR'), path]
+        elif os.environ.get('VISUAL'):
+            command = [os.environ.get('VISUAL'), path]
+        else:
+            command = ['xdg-open', path]
+        Popen(command)
 
 
 

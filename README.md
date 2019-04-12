@@ -97,15 +97,17 @@ optional arguments:
 ### transcoder
 
 ```
-usage: music transcoder [-h] CONFIG
+usage: music transcoder [-h] [--newconfig] CONFIG
 
 Batch transcode music files according to the provided configuration file
 
 positional arguments:
-  CONFIG      Path to YAML description of the transcoding job
+  CONFIG       Path to YAML description of the transcoding job
 
 optional arguments:
-  -h, --help  show this help message and exit
+  -h, --help   show this help message and exit
+  --newconfig  Create new configuration file from template and open it for
+               editing
 
 This program relies on FFmpeg <http://ffmpeg.org> for audio encoding.
 Please make sure it's installed
@@ -197,5 +199,3 @@ Copyright 2019 Vitaly Potyarkin
     - Add default values to json schema
     - Generate documentation from json schema
 - `git grep TОDО`
-- Configuration
-    - Generate new config file from template

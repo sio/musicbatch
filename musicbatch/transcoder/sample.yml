@@ -1,0 +1,25 @@
+# This YAML file contains configuration for a music transcoding job.
+# Lines starting with # symbol are considered comments and are ignored.
+#
+# Run `music transcoder THIS_FILE.yml` to execute this transcoding job.
+# See <https://github.com/sio/musicbatch> for more information.
+
+# !!! Values below are sample placeholders that need to be replaced !!!
+name: New Transcoding Job  # required
+
+input:  # required
+  - /path/to/directory/with/music
+
+output:
+  directory: /path/to/destination/directory  # required
+  pattern: '{artist}/{year} - {album}/{number} - {title}'  # optional
+  format: vorbis  # optional
+  quality: q5  # optional
+  lossy_source: copy  # optional
+  category_blacklist:  # optional; also: category_whitelist
+    - category_foo
+    - category_bar
+
+extras:
+  lyrics: /path/to/lyrics/database-or-directory  # optional
+  cover: 250  # optional
