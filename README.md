@@ -192,7 +192,6 @@ Copyright 2019 Vitaly Potyarkin
     - AAC
 - Manage album metadata
     - Generate info page
-    - Copy/symlink metadata directory when transcoding
 - Extras
     - Add support for aoTuV path
 - JSON Schema

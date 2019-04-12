@@ -13,6 +13,7 @@ from musicbatch.transcoder.util import (
     make_target_directory,
     skip_action,
 )
+from musicbatch.metadata import METADATA_DIRECTORY
 
 
 
@@ -137,8 +138,6 @@ class SymlinkCreator(VerbatimFileCopy):
     (e.g. torrents directory)
     '''
 
-    # TODO: create symlink to metadata file/directory
-
     def __call__(self, input_filename, output_filename):
         extension = os.path.splitext(input_filename)[1].lower()
         if not output_filename.lower().endswith(extension):
@@ -151,4 +150,11 @@ class SymlinkCreator(VerbatimFileCopy):
             status = self.STATUS_SKIPTAGS
         else:
             status = self.STATUS_SKIP
+        meta_dir = os.path.join(os.path.dirname(input_filename), METADATA_DIRECTORY)
+        if os.path.exists(meta_dir) :
+            meta_dest = os.path.join(os.path.dirname(output_filename), METADATA_DIRECTORY)
+            try:
+                os.symlink(meta_dir, meta_dest)
+            except OSError:
+                pass
         return output_filename, status
