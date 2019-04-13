@@ -119,7 +119,10 @@ def restore_stdin():
 
 
 def edit_file(path):
-    '''Open text file for editing in default application'''
+    '''
+    Open text file for editing in default application. Current script process
+    will be immediately terminated and replaced with editor.
+    '''
     try:
         os.startfile(path)
     except AttributeError:
@@ -131,7 +134,7 @@ def edit_file(path):
             command = [os.environ.get('VISUAL'), path]
         else:
             command = ['xdg-open', path]
-        Popen(command)
+        os.execvp(command[0], command)
 
 
 
