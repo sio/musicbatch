@@ -83,7 +83,6 @@ class VorbisTranscoder(Transcoder):
 
 
     def configure(self, quality, *a, **ka):
-        '''Configure export to Vorbis audio'''
         if quality is None: quality = 'q7'
         parsed = self.valid_quality.match(quality.lower())
         if parsed:
@@ -94,6 +93,71 @@ class VorbisTranscoder(Transcoder):
             'format': 'ogg',
             'codec': 'libvorbis',
             'parameters': ['-aq', numeric_quality],
+        }
+
+
+
+class LameTranscoder(Transcoder):
+    '''Transcoder for LAME MP3 target'''
+    valid_quality = re.compile(r'^V\s*([0-9])$', re.IGNORECASE)
+
+
+    def configure(self, quality, *a, **ka):
+        if quality is None: quality = 'V0'
+        parsed = self.valid_quality.match(quality.strip())
+        if parsed:
+            numeric_quality = parsed.group(1)
+        else:
+            raise ValueError('Invalid quality value: {}'.format(quality))
+        return {
+            'format': 'mp3',
+            'codec': 'libmp3lame',
+            'parameters': ['-aq', numeric_quality],
+        }
+
+
+
+class AACTranscoder(Transcoder):
+    '''Transcoder for AAC target'''
+    valid_quality = re.compile(r'^V\s*([12345])$', re.IGNORECASE)
+
+
+    def __init__(self, quality=None, *a, **ka):
+        super().__init__(quality, *a, **ka)
+        self.extension = 'm4a'
+
+
+    def configure(self, quality, *a, **ka):
+        if quality is None: quality = 'V5'
+        parsed = self.valid_quality.match(quality.strip())
+        if parsed:
+            numeric_quality = parsed.group(1)
+        else:
+            raise ValueError('Invalid quality value: {}'.format(quality))
+        return {
+            'format': 'aac',
+            'codec': 'libfdk_aac',
+            'parameters': ['-vbr', numeric_quality],
+        }
+
+
+
+class OpusTranscoder(Transcoder):
+    '''Transcoder for Opus target'''
+    valid_quality = re.compile(r'^([0-9]+)\s*k$', re.IGNORECASE)
+
+
+    def configure(self, quality, *a, **ka):
+        if quality is None: quality = '96k'
+        parsed = self.valid_quality.match(quality.strip())
+        if parsed:
+            numeric_quality = parsed.group(1)
+        else:
+            raise ValueError('Invalid quality value: {}'.format(quality))
+        return {
+            'format': 'opus',
+            'codec': 'libopus',
+            'parameters': ['-ab', numeric_quality],
         }
 
 
