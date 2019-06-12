@@ -27,9 +27,8 @@ setup(
         'pydub',
         'ruamel.yaml',
         'jsonschema',
-        'hods @ https://github.com/sio/hods/archive/master.zip',
-        # Lyrics + Scrapehelper
-        'requests',
+        'hods @ https://github.com/sio/hods/tarball/master',
+        'scrapehelper @ https://github.com/sio/scrapehelper/tarball/master',
         'lxml',
         'sqlalchemy',
     ],
