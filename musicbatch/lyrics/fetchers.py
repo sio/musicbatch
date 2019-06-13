@@ -263,7 +263,7 @@ class LyricsWorldRuFetcher(BaseLyricsFetcher):
                 artist_page = self.parse_html(self.artist_url.format(
                     artist=artist,
                     num=page_number,
-                ))
+                ), force_encoding='utf-8')
                 page_number += 1
             except DataFetcherError:
                 return self.NOT_FOUND
@@ -276,7 +276,7 @@ class LyricsWorldRuFetcher(BaseLyricsFetcher):
             if not song_url:
                 continue  # try next page
             try:
-                song_page = self.parse_html(song_url)
+                song_page = self.parse_html(song_url, force_encoding='utf-8')
             except DataFetcherError:
                 return self.NOT_FOUND
             lyrics = song_page.xpath('//p[@id="songLyricsDiv"]')
