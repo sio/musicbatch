@@ -160,9 +160,11 @@ class MetroLyricsFetcher(BaseLyricsFetcher):
             (artist, title)
         )
         try:
-            html = self.parse_html(self.url_pattern.format(artist=artist, title=title))
+            response = self.get(self.url_pattern.format(artist=artist, title=title))
         except DataFetcherError:
             return self.NOT_FOUND
+        response.encoding = 'utf-8'  # incorrectly detected otherwise
+        html = self.parse_html(response=response)
         paragraphs = html.xpath('//p[@class="verse"]')
         lyrics = '\n\n'.join(p.text_content().strip() for p in paragraphs)
         return self.check(lyrics)
