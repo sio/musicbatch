@@ -69,9 +69,9 @@ def parse_args(*a, prog=None, **ka):
     )
     parser.add_argument(
         '--database',
-        default='$HOME/.lyrics.db',
+        default=os.getenv('MUSICBATCH_LYRICSDB') or '$HOME/.lyrics.db',
         metavar='FILE',
-        help='Path to local lyrics database (default: ~/.lyrics.db)',
+        help='Path to local lyrics database (default: $MUSICBATCH_LYRICSDB or ~/.lyrics.db)',
     )
     parser.add_argument(
         '--scan-library',
