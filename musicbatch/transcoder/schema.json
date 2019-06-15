@@ -48,6 +48,11 @@
             "oneOf": [
               {"const": "copy"},
               {"const": "symlink"},
+              {"const": "lame"},
+              {"const": "mp3"},
+              {"const": "aac"},
+              {"const": "m4a"},
+              {"const": "opus"},
               {"const": "vorbis"}
             ]
           },

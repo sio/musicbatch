@@ -26,6 +26,9 @@ from musicbatch.transcoder import (
     LOSSLESS_EXTENSIONS,
 )
 from musicbatch.transcoder.encoders import (
+    AACTranscoder,
+    LameTranscoder,
+    OpusTranscoder,
     SymlinkCreator,
     VerbatimFileCopy,
     VorbisTranscoder,
@@ -146,6 +149,11 @@ class TranscodingJob:
         'copy': VerbatimFileCopy,
         'symlink': SymlinkCreator,
         'vorbis': VorbisTranscoder,
+        'lame': LameTranscoder,
+        'mp3': LameTranscoder,
+        'aac': AACTranscoder,
+        'm4a': AACTranscoder,
+        'opus': OpusTranscoder,
     }
 
 
