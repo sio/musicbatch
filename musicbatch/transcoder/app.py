@@ -272,7 +272,11 @@ class TranscodingJob:
         # Step 2: Copy music tags
         if not task.status is worker.STATUS_SKIPTAGS:
             result = mutagen.File(task.result, easy=True)
-            result.tags.update(task.tags)  # TODO: drop blacklisted tags (embedded image)
+            for key in task.tags.keys():  # mutagen is inconsistent about `for k in t.tags`
+                if hasattr(result.tags, 'valid_keys') \
+                and key not in result.tags.valid_keys:
+                    continue
+                result.tags[key] = task.tags[key]
             result.save()
 
         self.stats.record_done()
