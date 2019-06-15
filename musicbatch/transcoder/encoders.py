@@ -119,7 +119,7 @@ class LameTranscoder(Transcoder):
 
 class AACTranscoder(Transcoder):
     '''Transcoder for AAC target'''
-    valid_quality = re.compile(r'^V\s*([12345])$', re.IGNORECASE)
+    valid_quality = re.compile(r'^([0-9]+)\s*k$', re.IGNORECASE)
 
 
     def __init__(self, quality=None, *a, **ka):
@@ -128,16 +128,16 @@ class AACTranscoder(Transcoder):
 
 
     def configure(self, quality, *a, **ka):
-        if quality is None: quality = 'V5'
+        if quality is None: quality = '128k'
         parsed = self.valid_quality.match(quality.strip())
         if parsed:
             numeric_quality = parsed.group(1)
         else:
             raise ValueError('Invalid quality value: {}'.format(quality))
         return {
-            'format': 'aac',
-            'codec': 'libfdk_aac',
-            'parameters': ['-vbr', numeric_quality],
+            'format': 'ipod', # https://github.com/mifi/lossless-cut/commit/9d061ac5c336f8f3be09522a0a0bbf9060801cba
+            'codec': 'aac',
+            'parameters': ['-ab', '{}k'.format(numeric_quality)],
         }
 
 
