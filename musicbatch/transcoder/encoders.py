@@ -157,7 +157,7 @@ class OpusTranscoder(Transcoder):
         return {
             'format': 'opus',
             'codec': 'libopus',
-            'parameters': ['-ab', numeric_quality],
+            'parameters': ['-ab', '{}k'.format(numeric_quality)],
         }
 
 
