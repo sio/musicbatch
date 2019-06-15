@@ -56,7 +56,8 @@ positional arguments:
 
 optional arguments:
   -h, --help          show this help message and exit
-  --database FILE     Path to local lyrics database (default: ~/.lyrics.db)
+  --database FILE     Path to local lyrics database (default:
+                      $MUSICBATCH_LYRICSDB or ~/.lyrics.db)
   --scan-library DIR  Populate local lyrics database with texts for all songs
                       in this directory (recursive)
   --retry-scheduled   Retry fetching lyrics that were unavailable in previous
