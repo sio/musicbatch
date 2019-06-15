@@ -126,7 +126,7 @@ input:  # required: at least one directory path
 output:
   directory: /media/user/SANSA_SD  # required: path to destination directory
   pattern: '{artist}/{year} - {album}/{number} - {title}'  # optional: file hierarchy in destination directory
-  format: vorbis  # optional: vorbis (default) / copy / symlink
+  format: vorbis  # optional: vorbis(default)/opus/lame/aac/copy/symlink
   quality: q5  # optional: default value depends on selected output format
   lossy_source: copy  # optional: copy (default) / allow_bad_transcodes / skip
   category_blacklist:  # optional: select which albums to transcode based on HODS metadata files
@@ -186,10 +186,6 @@ Copyright 2019 Vitaly Potyarkin
 
 ## Development roadmap
 
-- Encoders: <https://trac.ffmpeg.org/wiki/Encode/HighQualityAudio>
-    - Opus
-    - LAME
-    - AAC
 - Manage album metadata
     - Generate info page
 - Extras
