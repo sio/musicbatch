@@ -2,7 +2,6 @@
 Some test cases for lyrics fetchers that can only be run interactively
 '''
 
-import sys
 from traceback import format_exc
 
 
